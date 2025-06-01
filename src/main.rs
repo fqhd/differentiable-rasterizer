@@ -1,39 +1,57 @@
 use differentiable_rasterizer::{Circle, compute_gradients, rasterize};
 use image::{ImageBuffer, Rgb, RgbImage};
+use std::fs::File;
+use std::io::Write;
 
 const WIDTH: u32 = 128;
 
-fn main() {
-    let my_circle_1 = Circle::new(0.3, 0.2, 0.2);
-    let values_1 = rasterize(&my_circle_1, WIDTH);
+fn main() -> Result<(), std::io::Error> {
+    let target = get_target();
 
-    let mut img1: RgbImage = ImageBuffer::new(WIDTH, WIDTH);
+    save_image(&target, "target.png");
 
-    let mut value_iter = values_1.iter();
+    let mut circle = Circle::new(0.1, 0.2, 0.2);
+    let mut losses: Vec<f32> = Vec::new();
+
+    for i in 0..100 {
+        let values = rasterize(&circle, WIDTH);
+        let gradients = compute_gradients(&circle, WIDTH, &values, &target);
+        circle.x += gradients.dx * 1e-2;
+        println!("{}) Loss: {}", i, gradients.loss);
+        losses.push(gradients.loss);
+        let path = format!("frames/{}.png", i);
+        save_image(&values, &path);
+    }
+
+    // Write losses to disk
+    let mut file = File::create("losses.txt")?;
+    for l in losses {
+        writeln!(file, "{}", l)?;
+    }
+
+    Ok(())
+}
+
+fn get_target() -> Vec<f32> {
+    let circle = Circle::new(0.3, 0.2, 0.2);
+    let values = rasterize(&circle, WIDTH);
+    values
+}
+
+fn save_image(values: &Vec<f32>, path: &str) {
+    let mut image: RgbImage = ImageBuffer::new(WIDTH, WIDTH);
+
+    let mut value_iter = values.iter();
 
     for y in 0..WIDTH {
         for x in 0..WIDTH {
             let value = value_iter.next();
             if let Some(value) = value {
                 let value = (value * 255.0) as u8;
-                img1.put_pixel(x, y, Rgb([value; 3]));
+                image.put_pixel(x, y, Rgb([value; 3]));
             }
         }
     }
 
-    let mut my_circle_2 = Circle::new(0.1, 0.2, 0.2);
-
-    println!("{}", my_circle_1.x);
-    println!("{}", my_circle_2.x);
-
-    for i in 0..1000 {
-        let values_2 = rasterize(&my_circle_2, WIDTH);
-        let gradients = compute_gradients(&my_circle_2, WIDTH, &values_2, &values_1);
-        my_circle_2.x += gradients.dx * 1e-3;
-        println!("{}) Loss: {}", i, gradients.loss);
-    }
-
-    println!("{}", my_circle_2.x);
-
-    // img.save("output.png").expect("Failed to save image");
+    image.save(path).expect("Failed to save image");
 }

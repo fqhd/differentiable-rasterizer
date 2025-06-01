@@ -6,3 +6,7 @@
 # already existing elements were commented out
 
 #/target
+
+frames
+output_video.mp4
+losses.txt
