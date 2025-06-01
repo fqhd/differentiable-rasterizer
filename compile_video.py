@@ -1,5 +1,6 @@
 import cv2
 import os
+import subprocess
 
 def make_video_from_frames(folder='frames', output='output_video.mp4', fps=30):
     def numerical_sort(filename):
@@ -16,8 +17,7 @@ def make_video_from_frames(folder='frames', output='output_video.mp4', fps=30):
     frame = cv2.imread(first_image_path)
     height, width, _ = frame.shape
 
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output, fourcc, fps, (width, height))
+    out = cv2.VideoWriter('temp.avi', cv2.VideoWriter_fourcc(*'MJPG'), fps, (width, height))
 
     for img_name in images:
         img_path = os.path.join(folder, img_name)
@@ -28,6 +28,12 @@ def make_video_from_frames(folder='frames', output='output_video.mp4', fps=30):
         out.write(frame)
 
     out.release()
+    subprocess.run([
+        'ffmpeg', '-i', 'temp.avi',
+        '-vcodec', 'libx264',
+        '-pix_fmt', 'yuv420p',
+        output
+    ])
     print(f"Video saved as {output}")
 
 if __name__ == "__main__":

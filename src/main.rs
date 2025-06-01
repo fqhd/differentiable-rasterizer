@@ -3,20 +3,22 @@ use image::{ImageBuffer, Rgb, RgbImage};
 use std::fs::File;
 use std::io::Write;
 
-const WIDTH: u32 = 128;
+const WIDTH: u32 = 512;
+const LEARNING_RATE: f32 = 1e-2;
 
 fn main() -> Result<(), std::io::Error> {
     let target = get_target();
 
     save_image(&target, "target.png");
 
-    let mut circle = Circle::new(0.1, 0.2, 0.2);
+    let mut circle = Circle::new(0.1, 0.1, 0.2);
     let mut losses: Vec<f32> = Vec::new();
 
-    for i in 0..100 {
+    for i in 0..200 {
         let values = rasterize(&circle, WIDTH);
         let gradients = compute_gradients(&circle, WIDTH, &values, &target);
-        circle.x += gradients.dx * 1e-2;
+        circle.x += gradients.dx * LEARNING_RATE;
+        circle.y += gradients.dy * LEARNING_RATE;
         println!("{}) Loss: {}", i, gradients.loss);
         losses.push(gradients.loss);
         let path = format!("frames/{}.png", i);

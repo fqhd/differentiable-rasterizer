@@ -68,6 +68,7 @@ pub fn compute_gradients(
     target: &Vec<f32>,
 ) -> Gradient {
     let mut dldx = 0.0;
+    let mut dldy = 0.0;
     let mut loss = 0.0;
 
     for j in 0..width {
@@ -80,17 +81,21 @@ pub fn compute_gradients(
             loss += (c - label).powf(2.0);
             let dsdx = dx_p_sigmoid(distance(x, circle.x, y, circle.y), circle.radius, 2000.0);
             let dddx = dx_distance(x, circle.x, y, circle.y);
+            let dddy = dy_distance(x, circle.x, y, circle.y);
             let dcdx = dsdx * dddx;
+            let dcdy = dsdx * dddy;
             dldx += 2.0 * (label - c) * dcdx;
+            dldy += 2.0 * (label - c) * dcdy;
         }
     }
 
     dldx /= (width * width) as f32;
+    dldy /= (width * width) as f32;
     loss /= (width * width) as f32;
 
     Gradient {
         dx: dldx,
-        dy: 0.0,
+        dy: dldy,
         dr: 0.0,
         loss,
     }

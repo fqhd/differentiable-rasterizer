@@ -10,3 +10,5 @@
 frames
 output_video.mp4
 losses.txt
+temp.avi
+.DS_Store
