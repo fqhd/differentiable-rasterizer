@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 image = "0.25.6"
+nalgebra = "0.33.2"

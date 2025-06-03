@@ -1,10 +1,10 @@
 pub struct Circle {
-    pub x: f32,
-    pub y: f32,
-    pub r: f32,
-    pub dx: f32,
-    pub dy: f32,
-    pub dr: f32,
+    x: f32,
+    y: f32,
+    r: f32,
+    dx: f32,
+    dy: f32,
+    dr: f32,
 }
 
 impl Circle {

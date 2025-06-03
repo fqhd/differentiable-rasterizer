@@ -1,7 +1,8 @@
+mod bezier;
 mod circle;
-pub use circle::Circle;
+pub use bezier::{Bezier, Vector2};
 
-pub fn rasterize(circle: &Circle, width: u32) -> Vec<f32> {
+pub fn rasterize(curve: &Bezier, width: u32) -> Vec<f32> {
     let mut image = vec![1.0; (width * width) as usize];
 
     for j in 0..width {
@@ -9,7 +10,7 @@ pub fn rasterize(circle: &Circle, width: u32) -> Vec<f32> {
             let index = j * width + i;
             let y = (j as f32) / (width as f32);
             let x = (i as f32) / (width as f32);
-            image[index as usize] = circle.forward(x, y);
+            image[index as usize] = curve.forward(x, y);
         }
     }
 
@@ -17,13 +18,13 @@ pub fn rasterize(circle: &Circle, width: u32) -> Vec<f32> {
 }
 
 pub fn optimize(
-    circle: &mut Circle,
+    curve: &mut Bezier,
     width: u32,
     raster: &Vec<f32>,
     target: &Vec<f32>,
     learning_rate: f32,
 ) -> f32 {
-    circle.zero_grad();
+    curve.zero_grad();
     let mut loss = 0.0;
 
     for j in 0..width {
@@ -34,13 +35,13 @@ pub fn optimize(
             let y = (j as f32) / (width as f32);
             let x = (i as f32) / (width as f32);
             loss += (label - c).powf(2.0);
-            circle.backward(x, y, c, label);
+            curve.backward(x, y, c, label);
         }
     }
 
     loss /= (width * width) as f32;
 
-    circle.step(width, learning_rate);
+    curve.step(width, learning_rate);
 
     loss
 }
