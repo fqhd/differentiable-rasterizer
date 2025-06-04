@@ -23,24 +23,24 @@ impl Bezier {
     }
 
     // D(t)
-    fn distance(&self, x0: f32, y0: f32, t: f32) -> f32 {
-        ((x0 - self.curve(t).x).powf(2.0) + (y0 - self.curve(t).y).powf(2.0)).sqrt()
+    fn distance(&self, x: f32, y: f32, t: f32) -> f32 {
+        ((x - self.curve(t).x).powf(2.0) + (y - self.curve(t).y).powf(2.0)).sqrt()
     }
 
-    fn d_distance(&self, x0: f32, y0: f32, t: f32) -> f32 {
-        let s = self.s(x0, y0, t);
-        let s_prime = self.s_prime(x0, y0, t);
+    fn d_distance(&self, x: f32, y: f32, t: f32) -> f32 {
+        let s = self.s(x, y, t);
+        let s_prime = self.s_prime(x, y, t);
 
         s_prime / (2.0 * s.sqrt())
     }
 
-    fn s(&self, x0: f32, y0: f32, t: f32) -> f32 {
-        (x0 - self.curve(t).x).powf(2.0) + (y0 - self.curve(t).y).powf(2.0)
+    fn s(&self, x: f32, y: f32, t: f32) -> f32 {
+        (x - self.curve(t).x).powf(2.0) + (y - self.curve(t).y).powf(2.0)
     }
 
-    fn s_prime(&self, x0: f32, y0: f32, t: f32) -> f32 {
-        2.0 * (x0 - self.curve(t).x) * self.d_curve(t).x
-            + 2.0 * (y0 - self.curve(t).y) * self.d_curve(t).y
+    fn s_prime(&self, x: f32, y: f32, t: f32) -> f32 {
+        2.0 * (x - self.curve(t).x) * self.d_curve(t).x
+            + 2.0 * (y - self.curve(t).y) * self.d_curve(t).y
     }
 
     fn d_curve(&self, t: f32) -> Vector2<f32> {
@@ -51,52 +51,48 @@ impl Bezier {
         -2.0 * a + 2.0 * a * t + 2.0 * b - 4.0 * b * t + 2.0 * c * t
     }
 
-    pub fn forward(&self, x0: f32, y0: f32) -> f32 {
-        let a = &self.a.y;
-        let b = &self.b.y;
-        let c = &self.c.y;
-        let d = &self.a.x;
-        let e = &self.b.x;
-        let f = &self.c.x;
-        let y = y0;
-        let x = x0;
+    pub fn forward(&self, x: f32, y: f32) -> f32 {
+        let y0 = &self.a.y;
+        let y1 = &self.b.y;
+        let y2 = &self.c.y;
+        let x0 = &self.a.x;
+        let x1 = &self.b.x;
+        let x2 = &self.c.x;
 
-        let t3 = -4.0 * a * a + 16.0 * a * b - 8.0 * a * c - 16.0 * b * b + 16.0 * b * c
-            - 4.0 * c * c
-            - 4.0 * d * d
-            + 16.0 * d * e
-            - 8.0 * d * f
-            - 16.0 * e * e
-            + 16.0 * e * f
-            - 4.0 * f * f;
+        let a = -4.0 * y0 * y0 + 16.0 * y0 * y1 - 8.0 * y0 * y2 - 16.0 * y1 * y1 + 16.0 * y1 * y2
+            - 4.0 * y2 * y2
+            - 4.0 * x0 * x0
+            + 16.0 * x0 * x1
+            - 8.0 * x0 * x2
+            - 16.0 * x1 * x1
+            + 16.0 * x1 * x2
+            - 4.0 * x2 * x2;
 
-        // Coefficient of t^2
-        let t2 = 12.0 * a * a - 36.0 * a * b + 12.0 * a * c + 24.0 * b * b - 12.0 * b * c
-            + 12.0 * d * d
-            - 36.0 * d * e
-            + 12.0 * d * f
-            + 24.0 * e * e
-            - 12.0 * e * f;
+        let b = 12.0 * y0 * y0 - 36.0 * y0 * y1 + 12.0 * y0 * y2 + 24.0 * y1 * y1 - 12.0 * y1 * y2
+            + 12.0 * x0 * x0
+            - 36.0 * x0 * x1
+            + 12.0 * x0 * x2
+            + 24.0 * x1 * x1
+            - 12.0 * x1 * x2;
 
-        // Coefficient of t^1
-        let t1 =
-            -12.0 * a * a + 24.0 * a * b - 4.0 * a * c + 4.0 * a * y - 8.0 * b * b - 8.0 * b * y
-                + 4.0 * c * y
-                - 12.0 * d * d
-                + 24.0 * d * e
-                - 4.0 * d * f
-                + 4.0 * d * x
-                - 8.0 * e * e
-                - 8.0 * e * x
-                + 4.0 * f * x;
+        let c = -12.0 * y0 * y0 + 24.0 * y0 * y1 - 4.0 * y0 * y2 + 4.0 * y0 * y
+            - 8.0 * y1 * y1
+            - 8.0 * y1 * y
+            + 4.0 * y2 * y
+            - 12.0 * x0 * x0
+            + 24.0 * x0 * x1
+            - 4.0 * x0 * x2
+            + 4.0 * x0 * x
+            - 8.0 * x1 * x1
+            - 8.0 * x1 * x
+            + 4.0 * x2 * x;
 
-        // Constant term (t^0)
-        let t0 = 4.0 * a * a - 4.0 * a * b - 4.0 * a * y + 4.0 * b * y + 4.0 * d * d
-            - 4.0 * d * e
-            - 4.0 * d * x
-            + 4.0 * e * x;
+        let d = 4.0 * y0 * y0 - 4.0 * y0 * y1 - 4.0 * y0 * y + 4.0 * y1 * y + 4.0 * x0 * x0
+            - 4.0 * x0 * x1
+            - 4.0 * x0 * x
+            + 4.0 * x1 * x;
 
-        let roots = solve_cubic(t3, t2, t1, t0);
+        let roots = solve_cubic(a, b, c, d);
 
         let mut t_values = vec![0.0, 1.0];
         for t in roots {
@@ -106,7 +102,7 @@ impl Bezier {
         let mut min_distance = f32::MAX;
         for t in t_values {
             if t >= 0.0 && t <= 1.0 {
-                let d = self.distance(x0, y0, t);
+                let d = self.distance(x, y, t);
                 if d < min_distance {
                     min_distance = d;
                 }
@@ -116,7 +112,7 @@ impl Bezier {
         p_sigmoid(min_distance, 0.01, 2000.0)
     }
 
-    pub fn backward(&mut self, x0: f32, y0: f32, y_hat: f32, target: f32) {}
+    pub fn backward(&mut self, x: f32, y: f32, y_hat: f32, target: f32) {}
 
     pub fn zero_grad(&mut self) {}
 
