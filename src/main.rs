@@ -3,7 +3,7 @@ use image::{ImageBuffer, Rgb, RgbImage};
 use std::fs::File;
 use std::io::Write;
 
-const WIDTH: u32 = 256;
+const WIDTH: u32 = 512;
 
 fn main() -> Result<(), std::io::Error> {
     let target = get_target();
@@ -33,9 +33,9 @@ fn main() -> Result<(), std::io::Error> {
 
 fn get_target() -> Vec<f32> {
     let curve = Bezier::new(
-        Vector2::new(0.6, 0.8),
+        Vector2::new(0.3, 0.8),
         Vector2::new(0.0, 0.0),
-        Vector2::new(0.8, 0.6),
+        Vector2::new(0.8, 0.3),
     );
     let values = rasterize(&curve, WIDTH);
     values

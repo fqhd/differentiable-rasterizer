@@ -13,3 +13,7 @@ losses.txt
 temp.avi
 .DS_Store
 target.png
+.ipynb
+*.ipynb
+*.pth
+training_data

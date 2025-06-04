@@ -52,34 +52,56 @@ impl Bezier {
     }
 
     pub fn forward(&self, x0: f32, y0: f32) -> f32 {
-        let a = &self.a;
-        let b = &self.b;
-        let c = &self.c;
+        let a = &self.a.y;
+        let b = &self.b.y;
+        let c = &self.c.y;
+        let d = &self.a.x;
+        let e = &self.b.x;
+        let f = &self.c.x;
+        let y = y0;
+        let x = x0;
 
-        let numerator = 2.0 * a - 2.0 * b;
-        let denominator = 2.0 * a - 4.0 * b + 2.0 * c;
+        let t3 = -4.0 * a * a + 16.0 * a * b - 8.0 * a * c - 16.0 * b * b + 16.0 * b * c
+            - 4.0 * c * c
+            - 4.0 * d * d
+            + 16.0 * d * e
+            - 8.0 * d * f
+            - 16.0 * e * e
+            + 16.0 * e * f
+            - 4.0 * f * f;
 
-        let rootsd = numerator.component_div(&denominator);
+        // Coefficient of t^2
+        let t2 = 12.0 * a * a - 36.0 * a * b + 12.0 * a * c + 24.0 * b * b - 12.0 * b * c
+            + 12.0 * d * d
+            - 36.0 * d * e
+            + 12.0 * d * f
+            + 24.0 * e * e
+            - 12.0 * e * f;
 
-        let mut t_values = Vec::new();
+        // Coefficient of t^1
+        let t1 =
+            -12.0 * a * a + 24.0 * a * b - 4.0 * a * c + 4.0 * a * y - 8.0 * b * b - 8.0 * b * y
+                + 4.0 * c * y
+                - 12.0 * d * d
+                + 24.0 * d * e
+                - 4.0 * d * f
+                + 4.0 * d * x
+                - 8.0 * e * e
+                - 8.0 * e * x
+                + 4.0 * f * x;
 
-        if rootsd.x == rootsd.y {
-            t_values.push(rootsd.x);
-        }
+        // Constant term (t^0)
+        let t0 = 4.0 * a * a - 4.0 * a * b - 4.0 * a * y + 4.0 * b * y + 4.0 * d * d
+            - 4.0 * d * e
+            - 4.0 * d * x
+            + 4.0 * e * x;
 
-        let rootsx = quad(a.x - 2.0 * b.x + c.x, 2.0 * b.x - 2.0 * a.x, a.x - x0);
-        let rootsy = quad(a.y - 2.0 * b.y + c.y, 2.0 * b.y - 2.0 * a.y, a.y - y0);
+        let roots = solve_cubic(t3, t2, t1, t0);
 
-        for t in rootsx {
+        let mut t_values = vec![0.0, 1.0];
+        for t in roots {
             t_values.push(t);
         }
-
-        for t in rootsy {
-            t_values.push(t);
-        }
-
-        t_values.push(0.0);
-        t_values.push(1.0);
 
         let mut min_distance = f32::MAX;
         for t in t_values {
@@ -91,7 +113,7 @@ impl Bezier {
             }
         }
 
-        if min_distance < 0.05 { 0.0 } else { 1.0 }
+        p_sigmoid(min_distance, 0.01, 2000.0)
     }
 
     pub fn backward(&mut self, x0: f32, y0: f32, y_hat: f32, target: f32) {}
@@ -101,34 +123,51 @@ impl Bezier {
     pub fn step(&mut self, width: u32, lr: f32) {}
 }
 
-fn quad(a: f32, b: f32, c: f32) -> Vec<f32> {
-    let discriminant = b.powf(2.0) - 4.0 * a * c;
-    if discriminant == 0.0 {
-        let root1 = (-b) / (2.0 * a);
-        return vec![root1];
-    } else if discriminant > 0.0 {
-        let root1 = ((-b) + discriminant.sqrt()) / (2.0 * a);
-        let root2 = ((-b) - discriminant.sqrt()) / (2.0 * a);
-        return vec![root1, root2];
-    } else {
-        return vec![];
-    }
+fn p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
+    1.0 / (1.0 + ((offset - x) * sharpness).exp())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+use std::f32::consts::PI;
 
-    #[test]
-    fn quadratic_function_test() {
-        let a = 2.1;
-        let b = 8.3;
-        let c = 5.7;
-
-        let roots = quad(a, b, c);
-
-        let roots: Vec<f32> = roots.iter().map(|x| (x * 100.0).round()).collect();
-
-        assert!(roots.contains(&-307.0) && roots.contains(&-88.0));
+pub fn solve_cubic(a: f32, b: f32, c: f32, d: f32) -> Vec<f32> {
+    if a == 0.0 {
+        panic!("Coefficient a cannot be zero for a cubic equation");
     }
+
+    // Convert to depressed cubic: t^3 + pt + q = 0
+    let a_inv = 1.0 / a;
+    let b_over_3a = b * a_inv / 3.0;
+
+    let p = (3.0 * a * c - b * b) / (3.0 * a * a);
+    let q = (2.0 * b * b * b - 9.0 * a * b * c + 27.0 * a * a * d) / (27.0 * a * a * a);
+
+    let discriminant = (q / 2.0).powi(2) + (p / 3.0).powi(3);
+    let mut roots = Vec::new();
+
+    if discriminant > 0.0 {
+        // One real root
+        let sqrt_disc = discriminant.sqrt();
+        let u = (-q / 2.0 + sqrt_disc).cbrt();
+        let v = (-q / 2.0 - sqrt_disc).cbrt();
+        let t = u + v;
+        roots.push(t - b_over_3a);
+    } else if discriminant == 0.0 {
+        // Triple or double root
+        let u = (-q / 2.0).cbrt();
+        roots.push(2.0 * u - b_over_3a);
+        roots.push(-u - b_over_3a);
+    } else {
+        // Three real roots
+        let r = (-p / 3.0).sqrt().powi(3);
+        let phi = (-(q / 2.0) / r).acos();
+        let two_sqrt_p3 = 2.0 * (-p / 3.0).sqrt();
+
+        for k in 0..3 {
+            let angle = (phi + 2.0 * PI * k as f32) / 3.0;
+            let t = two_sqrt_p3 * angle.cos();
+            roots.push(t - b_over_3a);
+        }
+    }
+
+    roots
 }
