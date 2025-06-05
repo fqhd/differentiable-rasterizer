@@ -51,7 +51,7 @@ impl Bezier {
         -2.0 * a + 2.0 * a * t + 2.0 * b - 4.0 * b * t + 2.0 * c * t
     }
 
-    pub fn forward(&self, x: f32, y: f32) -> f32 {
+    fn a(&self) -> f32 {
         let y0 = &self.a.y;
         let y1 = &self.b.y;
         let y2 = &self.c.y;
@@ -59,23 +59,41 @@ impl Bezier {
         let x1 = &self.b.x;
         let x2 = &self.c.x;
 
-        let a = -4.0 * y0 * y0 + 16.0 * y0 * y1 - 8.0 * y0 * y2 - 16.0 * y1 * y1 + 16.0 * y1 * y2
+        -4.0 * y0 * y0 + 16.0 * y0 * y1 - 8.0 * y0 * y2 - 16.0 * y1 * y1 + 16.0 * y1 * y2
             - 4.0 * y2 * y2
             - 4.0 * x0 * x0
             + 16.0 * x0 * x1
             - 8.0 * x0 * x2
             - 16.0 * x1 * x1
             + 16.0 * x1 * x2
-            - 4.0 * x2 * x2;
+            - 4.0 * x2 * x2
+    }
 
-        let b = 12.0 * y0 * y0 - 36.0 * y0 * y1 + 12.0 * y0 * y2 + 24.0 * y1 * y1 - 12.0 * y1 * y2
+    fn b(&self) -> f32 {
+        let y0 = &self.a.y;
+        let y1 = &self.b.y;
+        let y2 = &self.c.y;
+        let x0 = &self.a.x;
+        let x1 = &self.b.x;
+        let x2 = &self.c.x;
+
+        12.0 * y0 * y0 - 36.0 * y0 * y1 + 12.0 * y0 * y2 + 24.0 * y1 * y1 - 12.0 * y1 * y2
             + 12.0 * x0 * x0
             - 36.0 * x0 * x1
             + 12.0 * x0 * x2
             + 24.0 * x1 * x1
-            - 12.0 * x1 * x2;
+            - 12.0 * x1 * x2
+    }
 
-        let c = -12.0 * y0 * y0 + 24.0 * y0 * y1 - 4.0 * y0 * y2 + 4.0 * y0 * y
+    fn c(&self, x: f32, y: f32) -> f32 {
+        let y0 = &self.a.y;
+        let y1 = &self.b.y;
+        let y2 = &self.c.y;
+        let x0 = &self.a.x;
+        let x1 = &self.b.x;
+        let x2 = &self.c.x;
+
+        -12.0 * y0 * y0 + 24.0 * y0 * y1 - 4.0 * y0 * y2 + 4.0 * y0 * y
             - 8.0 * y1 * y1
             - 8.0 * y1 * y
             + 4.0 * y2 * y
@@ -85,14 +103,23 @@ impl Bezier {
             + 4.0 * x0 * x
             - 8.0 * x1 * x1
             - 8.0 * x1 * x
-            + 4.0 * x2 * x;
+            + 4.0 * x2 * x
+    }
 
-        let d = 4.0 * y0 * y0 - 4.0 * y0 * y1 - 4.0 * y0 * y + 4.0 * y1 * y + 4.0 * x0 * x0
+    fn d(&self, x: f32, y: f32) -> f32 {
+        let y0 = &self.a.y;
+        let y1 = &self.b.y;
+        let x0 = &self.a.x;
+        let x1 = &self.b.x;
+
+        4.0 * y0 * y0 - 4.0 * y0 * y1 - 4.0 * y0 * y + 4.0 * y1 * y + 4.0 * x0 * x0
             - 4.0 * x0 * x1
             - 4.0 * x0 * x
-            + 4.0 * x1 * x;
+            + 4.0 * x1 * x
+    }
 
-        let roots = solve_cubic(a, b, c, d);
+    pub fn forward(&self, x: f32, y: f32) -> f32 {
+        let roots = solve_cubic(self.a(), self.b(), self.c(x, y), self.d(x, y));
 
         let mut t_values = vec![0.0, 1.0];
         for t in roots {
