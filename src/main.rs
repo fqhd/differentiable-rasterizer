@@ -1,4 +1,4 @@
-use differentiable_rasterizer::{Bezier, Vector2, optimize, rasterize};
+use differentiable_rasterizer::{Bezier, Vector2, rasterize};
 use image::{ImageBuffer, Rgb, RgbImage};
 use std::fs::File;
 use std::io::Write;
