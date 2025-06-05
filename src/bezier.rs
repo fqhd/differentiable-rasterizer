@@ -118,6 +118,102 @@ impl Bezier {
             + 4.0 * x1 * x
     }
 
+    fn da_dy0(&self) -> f32 {
+        -8.0 * self.a.y + 16.0 * self.b.y - 8.0 * self.c.y
+    }
+
+    fn da_dy1(&self) -> f32 {
+        16.0 * self.a.y + 16.0 * self.c.y - 32.0 * self.b.y
+    }
+
+    fn da_dy2(&self) -> f32 {
+        -8.0 * self.a.y + 16.0 * self.b.y - 8.0 * self.c.y
+    }
+
+    fn da_dx0(&self) -> f32 {
+        16.0 * self.b.x - 8.0 * self.a.x - 8.0 * self.c.x
+    }
+
+    fn da_dx1(&self) -> f32 {
+        16.0 * self.a.x - 32.0 * self.b.x + 16.0 * self.c.x
+    }
+
+    fn da_dx2(&self) -> f32 {
+        -8.0 * self.a.x + 16.0 * self.b.x - 8.0 * self.c.x
+    }
+
+    fn db_dy0(&self) -> f32 {
+        24.0 * self.a.y - 36.0 * self.b.y + 12.0 * self.c.y
+    }
+
+    fn db_dy1(&self) -> f32 {
+        -36.0 * self.a.y + 48.0 * self.b.y - 12.0 * self.c.y
+    }
+
+    fn db_dy2(&self) -> f32 {
+        12.0 * self.a.y - 12.0 * self.b.y
+    }
+
+    fn db_dx0(&self) -> f32 {
+        24.0 * self.a.x - 36.0 * self.b.x + 12.0 * self.c.x
+    }
+
+    fn db_dx1(&self) -> f32 {
+        -36.0 * self.a.x + 48.0 * self.b.x - 12.0 * self.c.x
+    }
+
+    fn db_dx2(&self) -> f32 {
+        12.0 * self.a.x - 12.0 * self.b.x
+    }
+
+    fn dc_dy0(&self, y: f32) -> f32 {
+        -24.0 * self.a.y + 24.0 * self.b.y - 4.0 * self.c.y + 4.0 * y
+    }
+
+    fn dc_dy1(&self, y: f32) -> f32 {
+        24.0 * self.a.y - 16.0 * self.b.y - 8.0 * y
+    }
+
+    fn dc_dy2(&self, y: f32) -> f32 {
+        -4.0 * self.a.y + 4.0 * y
+    }
+
+    fn dc_dx0(&self, x: f32) -> f32 {
+        -24.0 * self.a.x + 24.0 * self.b.x - 4.0 * self.c.x + 4.0 * x
+    }
+
+    fn dc_dx1(&self, x: f32) -> f32 {
+        24.0 * self.a.x - 16.0 * self.b.x - 8.0 * x
+    }
+
+    fn dc_dx2(&self, x: f32) -> f32 {
+        -4.0 * self.a.x + 4.0 * x
+    }
+
+    fn dd_dy0(&self, y: f32) -> f32 {
+        8.0 * self.a.y - 4.0 * self.b.y - 4.0 * y
+    }
+
+    fn dd_dy1(&self, y: f32) -> f32 {
+        -4.0 * self.a.y + 4.0 * y
+    }
+
+    fn dd_dy2(&self) -> f32 {
+        0.0
+    }
+
+    fn dd_dx0(&self, x: f32) -> f32 {
+        8.0 * self.a.x - 4.0 * self.b.x - 4.0 * x
+    }
+
+    fn dd_dx1(&self, x: f32) -> f32 {
+        -4.0 * self.a.x + 4.0 * x
+    }
+
+    fn dd_dx2(&self) -> f32 {
+        0.0
+    }
+
     pub fn forward(&self, x: f32, y: f32) -> f32 {
         let roots = solve_cubic(self.a(), self.b(), self.c(x, y), self.d(x, y));
 
