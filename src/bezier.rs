@@ -221,7 +221,7 @@ impl Bezier {
 
         let mut t_values = vec![0.0, 1.0];
         for t in roots {
-            t_values.push(t);
+            t_values.push(t.0);
         }
 
         let mut min_distance = f32::MAX;
