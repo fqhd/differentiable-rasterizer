@@ -1,3 +1,7 @@
+use nalgebra::Vector2;
+
+use crate::math;
+
 pub struct Circle {
     x: f32,
     y: f32,
@@ -20,15 +24,18 @@ impl Circle {
     }
 
     pub fn forward(&self, x0: f32, y0: f32) -> f32 {
-        let d = distance(x0, self.x, y0, self.y);
-        let c = p_sigmoid(d, self.r, 2000.0);
-        c
+        let d = math::distance(Vector2::new(x0, y0), Vector2::new(self.x, self.y));
+        math::p_sigmoid(d, self.r, 2000.0)
     }
 
     pub fn backward(&mut self, x0: f32, y0: f32, y_hat: f32, target: f32) {
-        let dsdx = dx_p_sigmoid(distance(x0, self.x, y0, self.y), self.r, 2000.0);
-        let dddx = dx_distance(x0, self.x, y0, self.y);
-        let dddy = dy_distance(x0, self.x, y0, self.y);
+        let dsdx = math::dx_p_sigmoid(
+            math::distance(Vector2::new(x0, y0), Vector2::new(self.x, self.y)),
+            self.r,
+            2000.0,
+        );
+        let dddx = math::dx_distance(Vector2::new(x0, y0), Vector2::new(self.x, self.y));
+        let dddy = math::dy_distance(Vector2::new(x0, y0), Vector2::new(self.x, self.y));
         let dcdx = dsdx * dddx;
         let dcdy = dsdx * dddy;
         self.dx += 2.0 * (target - y_hat) * dcdx;
@@ -52,36 +59,10 @@ impl Circle {
     }
 }
 
-fn p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
-    1.0 / (1.0 + ((offset - x) * sharpness).exp())
-}
-
-fn dx_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
-    if x < 0.2 {
-        return 0.0;
-    } else if x > 0.5 {
-        return 0.0;
-    }
-    let a = ((offset - x) * sharpness).exp();
-    let t1 = 1.0 / (1.0 + a).powf(2.0);
-    t1 * a * sharpness
-}
-
-fn distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    ((x0 - x).powf(2.0) + (y0 - y).powf(2.0)).sqrt()
-}
-
-fn dx_distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    -(x0 - x) / distance(x0, x, y0, y)
-}
-
-fn dy_distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    -(y0 - y) / distance(x0, x, y0, y)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::math::*;
 
     #[test]
     fn test_sigmoid() {
@@ -98,15 +79,31 @@ mod tests {
 
     #[test]
     fn test_distance() {
-        assert_eq!(distance(0.0, 0.0, 5.0, 0.0), 5.0);
-        assert!((distance(0.0, 5.0, 5.0, 0.0) - 7.07107).abs() < 0.00001);
-        assert!((distance(0.0, -10.0, 5.0, 0.0) - 11.18034).abs() < 0.00001);
+        assert_eq!(
+            distance(Vector2::new(0.0, 5.0), Vector2::new(0.0, 0.0)),
+            5.0
+        );
+        assert!(
+            (distance(Vector2::new(0.0, 5.0), Vector2::new(5.0, 0.0)) - 7.07107).abs() < 0.00001
+        );
+        assert!(
+            (distance(Vector2::new(0.0, 5.0), Vector2::new(-10.0, 0.0)) - 11.18034).abs() < 0.00001
+        );
     }
 
     #[test]
     fn test_dx_distance() {
-        assert_eq!(dx_distance(0.0, 0.0, 5.0, 0.0), 0.0);
-        assert!((dx_distance(0.0, 5.0, 5.0, 0.0) - 0.707107).abs() < 0.00001);
-        assert!((dx_distance(0.0, -10.0, 5.0, 0.0) + 0.89443).abs() < 0.00001);
+        assert_eq!(
+            dx_distance(Vector2::new(0.0, 5.0), Vector2::new(0.0, 0.0)),
+            0.0
+        );
+        assert!(
+            (dx_distance(Vector2::new(0.0, 5.0), Vector2::new(5.0, 0.0)) - 0.707107).abs()
+                < 0.00001
+        );
+        assert!(
+            (dx_distance(Vector2::new(0.0, 5.0), Vector2::new(-10.0, 0.0)) + 0.89443).abs()
+                < 0.00001
+        );
     }
 }
