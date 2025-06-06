@@ -254,7 +254,7 @@ impl Bezier {
             }
         }
 
-        let c = math::p_sigmoid(min_distance.0, 0.03, 2000.0);
+        let colour = math::p_sigmoid(min_distance.0, 0.03, 2000.0);
 
         let sigmoid_derivative = math::dx_p_sigmoid(min_distance.0, 0.03, 2000.0);
         let distance_derivative = self.s_prime(x, y, min_distance.0);
@@ -342,9 +342,8 @@ impl Bezier {
         self.dc.x += dloss * dx2;
         self.dc.y += dloss * dy2;
 
-        let loss = (c - target).powf(2.0);
-
-        (c, loss)
+        let loss = (colour - target).powf(2.0);
+        (colour, loss)
     }
 
     pub fn zero_grad(&mut self) {
