@@ -16,7 +16,11 @@ pub fn dx_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
 }
 
 pub fn distance(a: Vector2<f32>, b: Vector2<f32>) -> f32 {
-    ((a.x - b.x).powf(2.0) + (a.y - b.y).powf(2.0)).sqrt()
+    squared_distance(a, b).sqrt()
+}
+
+pub fn squared_distance(a: Vector2<f32>, b: Vector2<f32>) -> f32 {
+    (a.x - b.x).powf(2.0) + (a.y - b.y).powf(2.0)
 }
 
 pub fn dx_distance(a: Vector2<f32>, b: Vector2<f32>) -> f32 {
@@ -72,7 +76,7 @@ pub fn solve_cubic(a: f32, b: f32, c: f32, d: f32) -> Vec<(f32, u8)> {
     roots
 }
 
-fn d_solve_cubic(
+pub fn d_solve_cubic(
     a: f32,
     b: f32,
     c: f32,
@@ -136,7 +140,7 @@ fn d_solve_cubic(
             // Tag 2 corresponds to the root x = -u - b/(3a)
             -du_dl + delta
         }
-        3..4 => {
+        3..5 => {
             let r = (-p / 3.0).sqrt().powi(3);
             let phi = (-(q / 2.0) / r).acos();
             // Derivative of r wrt. l
@@ -155,5 +159,53 @@ fn d_solve_cubic(
         }
 
         _ => panic!("Invalid tag for cubic root: {}", tag),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sigmoid() {
+        assert_eq!(p_sigmoid(1.0, 0.4, 40.0), 1.0);
+        assert!((p_sigmoid(0.5, 0.4, 40.0) - 0.982014).abs() < 0.00001)
+    }
+
+    #[test]
+    fn test_dx_sigmoid() {
+        assert_eq!(dx_p_sigmoid(0.4, 0.4, 40.0), 10.0);
+        assert_eq!(dx_p_sigmoid(0.4, 0.4, 100.0), 25.0);
+        assert!((dx_p_sigmoid(0.2, 0.4, 30.0) - 0.073995).abs() < 0.00001)
+    }
+
+    #[test]
+    fn test_distance() {
+        assert_eq!(
+            distance(Vector2::new(0.0, 5.0), Vector2::new(0.0, 0.0)),
+            5.0
+        );
+        assert!(
+            (distance(Vector2::new(0.0, 5.0), Vector2::new(5.0, 0.0)) - 7.07107).abs() < 0.00001
+        );
+        assert!(
+            (distance(Vector2::new(0.0, 5.0), Vector2::new(-10.0, 0.0)) - 11.18034).abs() < 0.00001
+        );
+    }
+
+    #[test]
+    fn test_dx_distance() {
+        assert_eq!(
+            dx_distance(Vector2::new(0.0, 5.0), Vector2::new(0.0, 0.0)),
+            0.0
+        );
+        assert!(
+            (dx_distance(Vector2::new(0.0, 5.0), Vector2::new(5.0, 0.0)) - 0.707107).abs()
+                < 0.00001
+        );
+        assert!(
+            (dx_distance(Vector2::new(0.0, 5.0), Vector2::new(-10.0, 0.0)) + 0.89443).abs()
+                < 0.00001
+        );
     }
 }

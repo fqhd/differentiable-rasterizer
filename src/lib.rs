@@ -18,25 +18,18 @@ pub fn rasterize(curve: &Bezier, width: u32) -> Vec<f32> {
     image
 }
 
-pub fn optimize(
-    curve: &mut Bezier,
-    width: u32,
-    raster: &[f32],
-    target: &[f32],
-    learning_rate: f32,
-) -> f32 {
+pub fn optimize(curve: &mut Bezier, width: u32, target: &[f32], learning_rate: f32) -> f32 {
     curve.zero_grad();
     let mut loss = 0.0;
 
     for j in 0..width {
         for i in 0..width {
             let index = j * width + i;
-            let c = raster[index as usize];
             let label = target[index as usize];
             let y = (j as f32) / (width as f32);
             let x = (i as f32) / (width as f32);
-            loss += (label - c).powf(2.0);
-            curve.backward(x, y, c, label);
+            let (_, l) = curve.forward_with_gradients(x, y, label);
+            loss += l;
         }
     }
 
