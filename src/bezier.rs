@@ -333,7 +333,7 @@ impl Bezier {
                 (self.da_dy2(), self.db_dy2(), self.dc_dy2(y), self.dd_dy2()),
             );
 
-        let dloss = 2.0 * (c - target);
+        let dloss = 2.0 * (colour - target);
 
         self.da.x += dloss * dx0;
         self.da.y += dloss * dy0;
