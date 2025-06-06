@@ -1,5 +1,6 @@
 mod bezier;
 mod circle;
+pub mod math;
 pub use bezier::{Bezier, Vector2};
 
 pub fn rasterize(curve: &Bezier, width: u32) -> Vec<f32> {
@@ -20,8 +21,8 @@ pub fn rasterize(curve: &Bezier, width: u32) -> Vec<f32> {
 pub fn optimize(
     curve: &mut Bezier,
     width: u32,
-    raster: &Vec<f32>,
-    target: &Vec<f32>,
+    raster: &[f32],
+    target: &[f32],
     learning_rate: f32,
 ) -> f32 {
     curve.zero_grad();

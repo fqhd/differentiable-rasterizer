@@ -37,11 +37,10 @@ fn get_target() -> Vec<f32> {
         Vector2::new(0.0, 0.0),
         Vector2::new(0.8, 0.3),
     );
-    let values = rasterize(&curve, WIDTH);
-    values
+    rasterize(&curve, WIDTH)
 }
 
-fn save_image(values: &Vec<f32>, path: &str) {
+fn save_image(values: &[f32], path: &str) {
     let mut image: RgbImage = ImageBuffer::new(WIDTH, WIDTH);
 
     let mut value_iter = values.iter();
