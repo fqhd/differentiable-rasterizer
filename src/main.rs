@@ -36,9 +36,9 @@ fn main() -> Result<(), std::io::Error> {
 
 fn get_target() -> Vec<f32> {
     let curve = Bezier::new(
-        Vector2::new(0.3, 0.8),
-        Vector2::new(0.0, 0.0),
-        Vector2::new(0.8, 0.3),
+        Vector2::new(0.1, 0.1),
+        Vector2::new(0.8, 0.6),
+        Vector2::new(0.8, 0.9),
     );
     rasterize(&curve, WIDTH)
 }
