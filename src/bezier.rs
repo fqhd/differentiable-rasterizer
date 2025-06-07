@@ -218,31 +218,6 @@ impl Bezier {
         let mut min_distance = (f32::MAX, 0);
         for t in roots {
             if (0.0..=1.0).contains(&t.0) {
-                let d = math::distance(Vector2::new(x, y), self.curve(t.0));
-                if d < min_distance.0 {
-                    min_distance.0 = d;
-                    min_distance.1 = t.1;
-                }
-            }
-        }
-
-        math::p_sigmoid(min_distance.0, 0.03, 1000.0)
-    }
-
-    pub fn forward_with_gradients(&mut self, x: f32, y: f32, target: f32) -> (f32, f32) {
-        let a = self.a();
-        let b = self.b();
-        let c = self.c(x, y);
-        let d = self.d(x, y);
-
-        let mut t_values = math::solve_cubic(a, b, c, d);
-
-        t_values.push((0.0, 5));
-        t_values.push((1.0, 6));
-
-        let mut min_distance = (f32::MAX, 0);
-        for t in t_values {
-            if (0.0..=1.0).contains(&t.0) {
                 let d = math::squared_distance(Vector2::new(x, y), self.curve(t.0));
                 if d < min_distance.0 {
                     min_distance.0 = d;
@@ -251,35 +226,43 @@ impl Bezier {
             }
         }
 
-        let colour = min_distance.0;
+        math::p_sigmoid(min_distance.0, 0.01, 1000.0)
+    }
 
-        if min_distance.1 == 5 {
-            let dloss = 2.0 * (colour - target);
-            let dx0 = 2.0 * (x - self.a.x);
-            let dy0 = 2.0 * (y - self.a.y);
+    pub fn forward_with_gradients(&mut self, x: f32, y: f32, target: f32) -> (f32, f32) {
+        let a = self.a();
+        let b = self.b();
+        let c = self.c(x, y);
+        let d = self.d(x, y);
 
-            let loss = (colour - target).powf(2.0);
+        let t_values = math::solve_cubic(a, b, c, d);
 
-            self.da.x += dloss * dx0;
-            self.da.y += dloss * dy0;
+        // t_values.push((0.0, 5));
+        // t_values.push((1.0, 6));
 
-            return (colour, loss);
-        } else if min_distance.1 == 6 {
-            let dloss = 2.0 * (colour - target);
-            let dx2 = 2.0 * (x - self.c.x);
-            let dy2 = 2.0 * (y - self.c.y);
-
-            let loss = (colour - target).powf(2.0);
-
-            self.dc.x += dloss * dx2;
-            self.dc.y += dloss * dy2;
-
-            return (colour, loss);
+        let mut min_distance = (f32::MAX, 0);
+        let mut min_t = f32::MAX;
+        for t in t_values {
+            if (0.0..=1.0).contains(&t.0) {
+                let d = math::squared_distance(Vector2::new(x, y), self.curve(t.0));
+                if d < min_distance.0 {
+                    min_distance.0 = d;
+                    min_distance.1 = t.1;
+                    min_t = t.0;
+                }
+            }
         }
 
-        let distance_derivative = self.s_prime(x, y, min_distance.0);
+        let colour = min_distance.0;
 
-        let combined = distance_derivative;
+        if colour == f32::MAX {
+            return (0.0, 0.0);
+        }
+
+        let distance_derivative = self.s_prime(x, y, min_t); // Should be the minimum t not min_distance
+        let sigmoid_derivative = math::dx_p_sigmoid(min_distance.0, 0.01, 1000.0);
+
+        let combined = sigmoid_derivative * distance_derivative;
 
         let dx0 = combined
             * math::d_solve_cubic(

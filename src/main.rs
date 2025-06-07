@@ -18,7 +18,7 @@ fn main() -> Result<(), std::io::Error> {
     let mut losses: Vec<f32> = Vec::new();
     let mut gradients: Vec<f32> = Vec::new();
 
-    for i in 0..10 {
+    for i in 0..100 {
         let values = rasterize(&curve, WIDTH);
         let loss = optimize(&mut curve, WIDTH, &target, 1e-3);
         gradients.push(curve.da.x);
@@ -37,8 +37,8 @@ fn main() -> Result<(), std::io::Error> {
 fn get_target() -> Vec<f32> {
     let curve = Bezier::new(
         Vector2::new(0.1, 0.1),
-        Vector2::new(0.8, 0.6),
-        Vector2::new(0.8, 0.9),
+        Vector2::new(0.9, 0.6),
+        Vector2::new(0.1, 0.9),
     );
     rasterize(&curve, WIDTH)
 }
