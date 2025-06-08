@@ -208,4 +208,36 @@ mod tests {
                 < 0.00001
         );
     }
+
+    #[test]
+    fn test_d_solve_cubic() {
+        let mut x = 2.2;
+        let dy = 1e-5;
+
+        let a0 = 1.0 * x;
+        let b0 = 5.0 * x;
+        let c0 = 7.0;
+        let d0 = 3.0;
+        let roots0 = solve_cubic(a0, b0, c0, d0);
+
+        x += dy;
+        let a1 = 1.0 * x;
+        let b1 = 5.0 * x;
+        let c1 = 7.0;
+        let d1 = 3.0;
+        let roots1 = solve_cubic(a1, b1, c1, d1);
+
+        for (i, (root, tag)) in roots0.into_iter().enumerate() {
+            let truth = d_solve_cubic(a0, b0, c0, d0, tag, (1.0, 5.0, 0.0, 0.0));
+
+            let approx = (roots1[i].0 - root) / dy;
+
+            assert!(
+                (approx - truth).abs() < 0.1,
+                "Got different values curve: {}, approx: {}",
+                truth,
+                approx
+            );
+        }
+    }
 }
