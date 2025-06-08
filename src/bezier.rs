@@ -357,3 +357,584 @@ impl Bezier {
         self.c += self.dc * lr;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_dady0() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.a();
+        curve.a.y += dy;
+        let y2 = curve.a();
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.da_dy0();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dady1() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.a();
+        curve.b.y += dy;
+        let y2 = curve.a();
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.da_dy1();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dady2() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.a();
+        curve.c.y += dy;
+        let y2 = curve.a();
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.da_dy2();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dadx0() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.a();
+        curve.a.x += dx;
+        let y2 = curve.a();
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.da_dx0();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dadx1() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.a();
+        curve.b.x += dx;
+        let y2 = curve.a();
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.da_dx1();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dadx2() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.a();
+        curve.c.x += dx;
+        let y2 = curve.a();
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.da_dx2();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dbdy0() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.b();
+        curve.a.y += dy;
+        let y2 = curve.b();
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.db_dy0();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dbdy1() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.b();
+        curve.b.y += dy;
+        let y2 = curve.b();
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.db_dy1();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dbdy2() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.b();
+        curve.c.y += dy;
+        let y2 = curve.b();
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.db_dy2();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dbdx0() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.b();
+        curve.a.x += dx;
+        let y2 = curve.b();
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.db_dx0();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dbdx1() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.b();
+        curve.b.x += dx;
+        let y2 = curve.b();
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.db_dx1();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dbdx2() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.b();
+        curve.c.x += dx;
+        let y2 = curve.b();
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.db_dx2();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dcdy0() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.c(0.0, 0.0);
+        curve.a.y += dy;
+        let y2 = curve.c(0.0, 0.0);
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.dc_dy0(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dcdy1() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.c(0.0, 0.0);
+        curve.b.y += dy;
+        let y2 = curve.c(0.0, 0.0);
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.dc_dy1(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dcdy2() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.c(0.0, 0.0);
+        curve.c.y += dy;
+        let y2 = curve.c(0.0, 0.0);
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.dc_dy2(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dcdx0() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.c(0.0, 0.0);
+        curve.a.x += dx;
+        let y2 = curve.c(0.0, 0.0);
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.dc_dx0(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dcdx1() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.c(0.0, 0.0);
+        curve.b.x += dx;
+        let y2 = curve.c(0.0, 0.0);
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.dc_dx1(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dcdx2() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.c(0.0, 0.0);
+        curve.c.x += dx;
+        let y2 = curve.c(0.0, 0.0);
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.dc_dx2(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dddy0() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.d(0.0, 0.0);
+        curve.a.y += dy;
+        let y2 = curve.d(0.0, 0.0);
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.dd_dy0(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dddy1() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.d(0.0, 0.0);
+        curve.b.y += dy;
+        let y2 = curve.d(0.0, 0.0);
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.dd_dy1(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dddy2() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dy = 1e-5;
+        let y1 = curve.d(0.0, 0.0);
+        curve.c.y += dy;
+        let y2 = curve.d(0.0, 0.0);
+
+        let approx = (y2 - y1) / dy;
+        let truth = curve.dd_dy2();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dddx0() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.d(0.0, 0.0);
+        curve.a.x += dx;
+        let y2 = curve.d(0.0, 0.0);
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.dd_dx0(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dddx1() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.d(0.0, 0.0);
+        curve.b.x += dx;
+        let y2 = curve.d(0.0, 0.0);
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.dd_dx1(0.0);
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+
+    #[test]
+    fn test_dddx2() {
+        let mut curve = Bezier::new(
+            Vector2::new(0.0, 0.0),
+            Vector2::new(1.0, 0.0),
+            Vector2::new(1.0, 1.0),
+        );
+
+        let dx = 1e-5;
+        let y1 = curve.d(0.0, 0.0);
+        curve.c.x += dx;
+        let y2 = curve.d(0.0, 0.0);
+
+        let approx = (y2 - y1) / dx;
+        let truth = curve.dd_dx2();
+
+        assert!(
+            (approx - truth).abs() < 0.1,
+            "Got different values curve: {}, approx: {}",
+            truth,
+            approx
+        );
+    }
+}

@@ -7,7 +7,7 @@ pub fn p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
 }
 
 pub fn dx_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
-    if !(-0.2..=0.2).contains(&x) {
+    if !(-0.2..=0.4).contains(&x) {
         return 0.0;
     }
     let a = ((offset - x) * sharpness).exp();
