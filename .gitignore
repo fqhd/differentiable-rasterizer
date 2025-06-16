@@ -17,3 +17,4 @@ target.png
 *.ipynb
 *.pth
 training_data
+__pycache__
