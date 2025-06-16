@@ -3,33 +3,33 @@ use image::{ImageBuffer, Rgb, RgbImage};
 use std::fs::File;
 use std::io::Write;
 
-const WIDTH: u32 = 128;
+const WIDTH: u32 = 512;
 
 fn main() -> Result<(), std::io::Error> {
     let target = get_target();
 
     save_image(&target, "target.png");
 
-    let mut curve = Bezier::new(
-        Vector2::new(0.0, 0.0),
-        Vector2::new(0.6, 0.6),
-        Vector2::new(1.0, 1.0),
-    );
-    let mut losses: Vec<f32> = Vec::new();
-    let mut gradients: Vec<f32> = Vec::new();
+    // let mut curve = Bezier::new(
+    //     Vector2::new(0.0, 0.0),
+    //     Vector2::new(0.6, 0.6),
+    //     Vector2::new(1.0, 1.0),
+    // );
+    // let mut losses: Vec<f32> = Vec::new();
+    // let mut gradients: Vec<f32> = Vec::new();
 
-    for i in 0..100 {
-        let values = rasterize(&curve, WIDTH);
-        let loss = optimize(&mut curve, WIDTH, &target, 1e-3);
-        gradients.push(curve.da.x);
-        println!("{}) Loss: {}", i, loss);
-        losses.push(loss);
-        let path = format!("frames/{}.png", i);
-        save_image(&values, &path);
-    }
+    // for i in 0..100 {
+    //     let values = rasterize(&curve, WIDTH);
+    //     let loss = optimize(&mut curve, WIDTH, &target, 1e-3);
+    //     gradients.push(curve.da.x);
+    //     println!("{}) Loss: {}", i, loss);
+    //     losses.push(loss);
+    //     let path = format!("frames/{}.png", i);
+    //     save_image(&values, &path);
+    // }
 
-    save_list(&losses, "losses.txt")?;
-    save_list(&gradients, "gradients.txt")?;
+    // save_list(&losses, "losses.txt")?;
+    // save_list(&gradients, "gradients.txt")?;
 
     Ok(())
 }

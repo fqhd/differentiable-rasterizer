@@ -1,8 +1,8 @@
 use std::f32;
-
 pub use nalgebra::Vector2;
 
 use crate::math;
+use crate::network;
 
 pub struct Bezier {
     a: Vector2<f32>,
@@ -212,21 +212,24 @@ impl Bezier {
         0.0
     }
 
-    pub fn forward(&self, x: f32, y: f32) -> f32 {
-        let roots = math::solve_cubic(self.a(), self.b(), self.c(x, y), self.d(x, y));
+    pub fn forward(&self, x: f32, y: f32, net: &network::Network) -> f32 {
+        let inputs = nalgebra::DVector::from_vec(vec![self.a.x, self.a.y, self.b.x, self.b.y, self.c.x, self.c.y, x, y]);
+        let distance = net.forward(inputs)[0];
+        
+        // let roots = math::solve_cubic(self.a(), self.b(), self.c(x, y), self.d(x, y));
 
-        let mut min_distance = (f32::MAX, 0);
-        for t in roots {
-            if (0.0..=1.0).contains(&t.0) {
-                let d = math::squared_distance(Vector2::new(x, y), self.curve(t.0));
-                if d < min_distance.0 {
-                    min_distance.0 = d;
-                    min_distance.1 = t.1;
-                }
-            }
-        }
+        // let mut min_distance = (f32::MAX, 0);
+        // for t in roots {
+        //     if (0.0..=1.0).contains(&t.0) {
+        //         let d = math::squared_distance(Vector2::new(x, y), self.curve(t.0));
+        //         if d < min_distance.0 {
+        //             min_distance.0 = d;
+        //             min_distance.1 = t.1;
+        //         }
+        //     }
+        // }
 
-        math::p_sigmoid(min_distance.0, 0.01, 1000.0)
+        math::p_sigmoid(distance, 0.05, 1000.0)
     }
 
     pub fn forward_with_gradients(&mut self, x: f32, y: f32, target: f32) -> (f32, f32) {
