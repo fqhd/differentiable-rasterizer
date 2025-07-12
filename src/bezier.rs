@@ -213,7 +213,10 @@ impl Bezier {
     }
 
     pub fn forward(&self, x: f32, y: f32) -> f32 {
-        let roots = math::solve_cubic(self.a(), self.b(), self.c(x, y), self.d(x, y));
+        let mut roots = math::solve_cubic(self.a(), self.b(), self.c(x, y), self.d(x, y));
+
+        roots.push((1.0, 0));
+        roots.push((0.0, 0));
 
         let mut min_distance = (f32::MAX, 0);
         for t in roots {
@@ -235,10 +238,10 @@ impl Bezier {
         let c = self.c(x, y);
         let d = self.d(x, y);
 
-        let t_values = math::solve_cubic(a, b, c, d);
+        let mut t_values = math::solve_cubic(a, b, c, d);
 
-        // t_values.push((0.0, 5));
-        // t_values.push((1.0, 6));
+        t_values.push((0.0, 6));
+        t_values.push((1.0, 7));
 
         let mut min_distance = (f32::MAX, 0);
         let mut min_t = f32::MAX;
@@ -253,18 +256,20 @@ impl Bezier {
             }
         }
 
-        let colour = min_distance.0;
+        let colour = math::p_sigmoid(min_distance.0, 0.01, 1000.0);
+        let loss = (colour - target).powf(2.0);
 
-        if colour == f32::MAX {
-            return (0.0, 0.0);
+        if min_distance.1 == 7 || min_distance.1 == 6 {
+            // If tag is 6 or 7 then derivative is 0
+            return (colour, loss);
         }
 
-        let distance_derivative = self.s_prime(x, y, min_t); // Should be the minimum t not min_distance
+        let distance_derivative = self.s_prime(x, y, min_t); //
         let sigmoid_derivative = math::dx_p_sigmoid(min_distance.0, 0.01, 1000.0);
 
         let combined = sigmoid_derivative * distance_derivative;
 
-        let dx0 = combined
+        let mut dx0 = combined
             * math::d_solve_cubic(
                 a,
                 b,
@@ -324,6 +329,10 @@ impl Bezier {
                 (self.da_dy2(), self.db_dy2(), self.dc_dy2(y), self.dd_dy2()),
             );
 
+        if !dx0.is_finite() {
+            dx0 = 0.0;
+        }
+
         let dloss = 2.0 * (colour - target);
 
         self.da.x += dloss * dx0;
@@ -332,8 +341,6 @@ impl Bezier {
         self.db.y += dloss * dy1;
         self.dc.x += dloss * dx2;
         self.dc.y += dloss * dy2;
-
-        let loss = (colour - target).powf(2.0);
 
         (colour, loss)
     }

@@ -3,7 +3,7 @@ use image::{ImageBuffer, Rgb, RgbImage};
 use std::fs::File;
 use std::io::Write;
 
-const WIDTH: u32 = 128;
+const WIDTH: u32 = 64;
 
 fn main() -> Result<(), std::io::Error> {
     let target = get_target();
@@ -11,14 +11,14 @@ fn main() -> Result<(), std::io::Error> {
     save_image(&target, "target.png");
 
     let mut curve = Bezier::new(
-        Vector2::new(0.0, 0.0),
-        Vector2::new(0.6, 0.6),
-        Vector2::new(1.0, 1.0),
+        Vector2::new(0.5, 0.1),
+        Vector2::new(0.9, 0.6),
+        Vector2::new(0.1, 0.9),
     );
     let mut losses: Vec<f32> = Vec::new();
     let mut gradients: Vec<f32> = Vec::new();
 
-    for i in 0..100 {
+    for i in 0..10 {
         let values = rasterize(&curve, WIDTH);
         let loss = optimize(&mut curve, WIDTH, &target, 1e-3);
         gradients.push(curve.da.x);
