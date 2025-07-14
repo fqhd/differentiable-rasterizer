@@ -13,9 +13,9 @@ fn main() -> Result<(), std::io::Error> {
     let mut circle = Circle::new(0.4, 0.4, 0.1);
     let mut losses: Vec<f32> = Vec::new();
 
-    for i in 0..200 {
+    for i in 0..300 {
         let values = rasterize(&circle, WIDTH);
-        let loss = optimize(&mut circle, WIDTH, &values, &target, 1e-2);
+        let loss = optimize(&mut circle, WIDTH, &values, &target, 2e-3);
         println!("{}) Loss: {}", i, loss);
         losses.push(loss);
         let path = format!("frames/{}.png", i);

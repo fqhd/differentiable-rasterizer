@@ -1,54 +1,62 @@
 pub struct Circle {
     pub x: f32,
     pub y: f32,
-    pub r: f32,
+    pub z: f32,
     pub dx: f32,
     pub dy: f32,
-    pub dr: f32,
+    pub dz: f32,
 }
 
 impl Circle {
-    pub fn new(x: f32, y: f32, radius: f32) -> Circle {
+    pub fn new(x: f32, y: f32, z: f32) -> Circle {
         Circle {
             x,
             y,
-            r: radius,
+            z,
             dx: 0.0,
             dy: 0.0,
-            dr: 0.0,
+            dz: 0.0,
         }
     }
 
     pub fn forward(&self, x0: f32, y0: f32) -> f32 {
         let d = distance(x0, self.x, y0, self.y);
-        let c = p_sigmoid(d, self.r, 2000.0);
+        let c = p_sigmoid(d, self.z, 2000.0);
         c
     }
 
     pub fn backward(&mut self, x0: f32, y0: f32, y_hat: f32, target: f32) {
-        let dsdx = d_p_sigmoid(distance(x0, self.x, y0, self.y), self.r, 2000.0);
+        let dsdx = d_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
         let dddx = dx_distance(x0, self.x, y0, self.y);
         let dddy = dy_distance(x0, self.x, y0, self.y);
         let dcdx = dsdx * dddx;
         let dcdy = dsdx * dddy;
+        let dcdz = dr_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
+        if dcdz.is_nan() {
+            println!("dcdz: {}", dcdz);
+            println!("z: {}", self.z);
+            println!("distance: {}", distance(x0, self.x, y0, self.y));
+            panic!("dcdz is NaN");
+        }
         self.dx += 2.0 * (target - y_hat) * dcdx;
         self.dy += 2.0 * (target - y_hat) * dcdy;
+        self.dz += 2.0 * (target - y_hat) * dcdz;
     }
 
     pub fn zero_grad(&mut self) {
         self.dx = 0.0;
         self.dy = 0.0;
-        self.dr = 0.0;
+        self.dz = 0.0;
     }
 
     pub fn step(&mut self, width: u32, lr: f32) {
         self.dx /= (width * width) as f32;
         self.dy /= (width * width) as f32;
-        self.dr /= (width * width) as f32;
+        self.dz /= (width * width) as f32;
 
         self.x += self.dx * lr;
         self.y += self.dy * lr;
-        self.r += self.dr * lr;
+        self.z += self.dz * lr;
     }
 }
 
@@ -62,16 +70,21 @@ fn d_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
     t1 * a * sharpness
 }
 
+fn dr_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
+    -(((offset - x) * sharpness).clamp(-10.0, 10.0).exp() * sharpness)
+        / (1.0 + ((offset - x) * sharpness).clamp(-10.0, 10.0).exp()).powi(2)
+}
+
 fn distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
     ((x0 - x).powf(2.0) + (y0 - y).powf(2.0)).sqrt()
 }
 
 fn dx_distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    (x - x0) / distance(x0, x, y0, y)
+    (x - x0) / distance(x0, x, y0, y).max(1e-10)
 }
 
 fn dy_distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    (y - y0) / distance(x0, x, y0, y)
+    (y - y0) / distance(x0, x, y0, y).max(1e-10)
 }
 
 #[cfg(test)]
