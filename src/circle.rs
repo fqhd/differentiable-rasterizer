@@ -53,16 +53,11 @@ impl Circle {
 }
 
 fn p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
-    1.0 / (1.0 + ((offset - x) * sharpness).exp())
+    1.0 / (1.0 + ((offset - x) * sharpness).clamp(-10.0, 10.0).exp())
 }
 
 fn dx_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
-    if x < 0.2 {
-        return 0.0;
-    } else if x > 0.5 {
-        return 0.0;
-    }
-    let a = ((offset - x) * sharpness).exp();
+    let a = ((offset - x) * sharpness).clamp(-10.0, 10.0).exp();
     let t1 = 1.0 / (1.0 + a).powf(2.0);
     t1 * a * sharpness
 }
@@ -72,11 +67,11 @@ fn distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
 }
 
 fn dx_distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    -(x0 - x) / distance(x0, x, y0, y)
+    (x - x0) / distance(x0, x, y0, y)
 }
 
 fn dy_distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    -(y0 - y) / distance(x0, x, y0, y)
+    (y - y0) / distance(x0, x, y0, y)
 }
 
 #[cfg(test)]
