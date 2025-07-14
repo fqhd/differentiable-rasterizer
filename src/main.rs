@@ -10,7 +10,7 @@ fn main() -> Result<(), std::io::Error> {
 
     save_image(&target, "target.png");
 
-    let mut circle = Circle::new(0.4, 0.4, 0.1);
+    let mut circle = Circle::new(0.4, 0.4, 0.1, 1.0, 1.0, 1.0);
     let mut losses: Vec<f32> = Vec::new();
 
     for i in 0..300 {
@@ -32,7 +32,7 @@ fn main() -> Result<(), std::io::Error> {
 }
 
 fn get_target() -> Vec<f32> {
-    let circle = Circle::new(0.5, 0.5, 0.2);
+    let circle = Circle::new(0.5, 0.5, 0.2, 1.0, 1.0, 1.0);
     let values = rasterize(&circle, WIDTH);
     values
 }

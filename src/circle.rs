@@ -2,27 +2,39 @@ pub struct Circle {
     pub x: f32,
     pub y: f32,
     pub z: f32,
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
     pub dx: f32,
     pub dy: f32,
     pub dz: f32,
+    pub dr: f32,
+    pub dg: f32,
+    pub db: f32,
 }
 
 impl Circle {
-    pub fn new(x: f32, y: f32, z: f32) -> Circle {
+    pub fn new(x: f32, y: f32, z: f32, r: f32, g: f32, b: f32) -> Circle {
         Circle {
             x,
             y,
             z,
+            r,
+            g,
+            b,
             dx: 0.0,
             dy: 0.0,
             dz: 0.0,
+            dr: 0.0,
+            dg: 0.0,
+            db: 0.0,
         }
     }
 
-    pub fn forward(&self, x0: f32, y0: f32) -> f32 {
+    pub fn forward(&self, x0: f32, y0: f32) -> (f32, f32, f32) {
         let d = distance(x0, self.x, y0, self.y);
         let c = p_sigmoid(d, self.z, 2000.0);
-        c
+        (c * self.r, c * self.g, c * self.b)
     }
 
     pub fn backward(&mut self, x0: f32, y0: f32, y_hat: f32, target: f32) {
@@ -31,7 +43,7 @@ impl Circle {
         let dddy = dy_distance(x0, self.x, y0, self.y);
         let dcdx = dsdx * dddx;
         let dcdy = dsdx * dddy;
-        let dcdz = dr_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
+        let dcdz = dz_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
         self.dx += 2.0 * (target - y_hat) * dcdx;
         self.dy += 2.0 * (target - y_hat) * dcdy;
         self.dz += 2.0 * (target - y_hat) * dcdz;
@@ -55,7 +67,7 @@ impl Circle {
 }
 
 fn p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
-    1.0 / (1.0 + ((offset - x) * sharpness).clamp(-10.0, 10.0).exp())
+    1.0 / (1.0 + ((x - offset) * sharpness).clamp(-10.0, 10.0).exp())
 }
 
 fn d_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
@@ -64,7 +76,7 @@ fn d_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
     t1 * a * sharpness
 }
 
-fn dr_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
+fn dz_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
     -(((offset - x) * sharpness).clamp(-10.0, 10.0).exp() * sharpness)
         / (1.0 + ((offset - x) * sharpness).clamp(-10.0, 10.0).exp()).powi(2)
 }
