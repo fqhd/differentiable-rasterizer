@@ -2,14 +2,17 @@ mod circle;
 pub use circle::Circle;
 
 pub fn rasterize(circle: &Circle, width: u32) -> Vec<f32> {
-    let mut image = vec![1.0; (width * width) as usize];
+    let mut image = vec![1.0; (width * width * 3) as usize];
 
     for j in 0..width {
         for i in 0..width {
-            let index = j * width + i;
+            let index = j * width * 3 + i * 3;
             let y = (j as f32) / (width as f32);
             let x = (i as f32) / (width as f32);
-            image[index as usize] = circle.forward(x, y);
+            let value = circle.forward(x, y);
+            image[(index + 0) as usize] = value;
+            image[(index + 1) as usize] = value;
+            image[(index + 2) as usize] = value;
         }
     }
 

@@ -40,15 +40,15 @@ fn get_target() -> Vec<f32> {
 fn save_image(values: &Vec<f32>, path: &str) {
     let mut image: RgbImage = ImageBuffer::new(WIDTH, WIDTH);
 
-    let mut value_iter = values.iter();
+    let values: Vec<u8> = values.iter().map(|x| (x * 255.0) as u8).collect();
 
     for y in 0..WIDTH {
         for x in 0..WIDTH {
-            let value = value_iter.next();
-            if let Some(value) = value {
-                let value = (value * 255.0) as u8;
-                image.put_pixel(x, y, Rgb([value; 3]));
-            }
+            let index = y * WIDTH * 3 + x * 3;
+            let red = values[(index + 0) as usize];
+            let green = values[(index + 1) as usize];
+            let blue = values[(index + 2) as usize];
+            image.put_pixel(x, y, Rgb([red, green, blue]));
         }
     }
 

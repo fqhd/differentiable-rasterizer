@@ -32,12 +32,6 @@ impl Circle {
         let dcdx = dsdx * dddx;
         let dcdy = dsdx * dddy;
         let dcdz = dr_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
-        if dcdz.is_nan() {
-            println!("dcdz: {}", dcdz);
-            println!("z: {}", self.z);
-            println!("distance: {}", distance(x0, self.x, y0, self.y));
-            panic!("dcdz is NaN");
-        }
         self.dx += 2.0 * (target - y_hat) * dcdx;
         self.dy += 2.0 * (target - y_hat) * dcdy;
         self.dz += 2.0 * (target - y_hat) * dcdz;
