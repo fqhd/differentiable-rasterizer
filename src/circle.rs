@@ -26,7 +26,7 @@ impl Circle {
     }
 
     pub fn backward(&mut self, x0: f32, y0: f32, y_hat: f32, target: f32) {
-        let dsdx = dx_p_sigmoid(distance(x0, self.x, y0, self.y), self.r, 2000.0);
+        let dsdx = d_p_sigmoid(distance(x0, self.x, y0, self.y), self.r, 2000.0);
         let dddx = dx_distance(x0, self.x, y0, self.y);
         let dddy = dy_distance(x0, self.x, y0, self.y);
         let dcdx = dsdx * dddx;
@@ -56,7 +56,7 @@ fn p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
     1.0 / (1.0 + ((offset - x) * sharpness).clamp(-10.0, 10.0).exp())
 }
 
-fn dx_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
+fn d_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
     let a = ((offset - x) * sharpness).clamp(-10.0, 10.0).exp();
     let t1 = 1.0 / (1.0 + a).powf(2.0);
     t1 * a * sharpness
@@ -85,10 +85,10 @@ mod tests {
     }
 
     #[test]
-    fn test_dx_sigmoid() {
-        assert_eq!(dx_p_sigmoid(0.4, 0.4, 40.0), 10.0);
-        assert_eq!(dx_p_sigmoid(0.4, 0.4, 100.0), 25.0);
-        assert!((dx_p_sigmoid(0.2, 0.4, 30.0) - 0.073995).abs() < 0.00001)
+    fn test_d_sigmoid() {
+        assert_eq!(d_p_sigmoid(0.4, 0.4, 40.0), 10.0);
+        assert_eq!(d_p_sigmoid(0.4, 0.4, 100.0), 25.0);
+        assert!((d_p_sigmoid(0.2, 0.4, 30.0) - 0.073995).abs() < 0.00001)
     }
 
     #[test]
