@@ -1,5 +1,5 @@
 use differentiable_rasterizer::{Circle, optimize, rasterize};
-use image::{ImageBuffer, Rgb, RgbImage};
+use image::{ImageBuffer, Rgb, RgbImage, imageops::FilterType};
 use std::fs::File;
 use std::io::Write;
 
@@ -10,12 +10,14 @@ fn main() -> Result<(), std::io::Error> {
 
     save_image(&target, "target.png");
 
-    let mut circle = Circle::new(0.4, 0.4, 0.1, 0.3, 0.5, 0.5);
-    let mut losses: Vec<f32> = Vec::new();
+    let mut circles = Vec::new();
+    circles.push(Circle::new(0.5, 0.2, 0.1, 0.3, 0.5, 0.5));
+    circles.push(Circle::new(0.5, 0.8, 0.1, 0.4, 0.1, 0.5));
+    let mut losses = Vec::new();
 
     for i in 0..200 {
-        let values = rasterize(&circle, WIDTH);
-        let loss = optimize(&mut circle, WIDTH, &values, &target, 2e-3);
+        let values = rasterize(&circles, WIDTH);
+        let loss = optimize(&mut circles, WIDTH, &values, &target, 2e-3);
         println!("{}) Loss: {}", i, loss);
         losses.push(loss);
         let path = format!("frames/{}.png", i);
@@ -32,8 +34,19 @@ fn main() -> Result<(), std::io::Error> {
 }
 
 fn get_target() -> Vec<f32> {
-    let circle = Circle::new(0.5, 0.5, 0.2, 1.0, 0.8, 0.5);
-    let values = rasterize(&circle, WIDTH);
+    let img = image::open("target.png")
+        .expect("Failed to load image")
+        .resize_exact(WIDTH, WIDTH, FilterType::Lanczos3)
+        .to_rgb8();
+
+    let mut values = Vec::with_capacity((WIDTH * WIDTH * 3) as usize);
+
+    for pixel in img.pixels() {
+        values.push(pixel[0] as f32 / 255.0);
+        values.push(pixel[1] as f32 / 255.0);
+        values.push(pixel[2] as f32 / 255.0);
+    }
+
     values
 }
 
