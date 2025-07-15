@@ -8,16 +8,9 @@ fn main() -> Result<(), std::io::Error> {
     let target = get_target(128);
 
     let mut circles = Vec::new();
-    for _ in 0..1000 {
-        circles.push(Circle::new(
-            fastrand::f32(),
-            fastrand::f32(),
-            0.01 + fastrand::f32() * 0.1,
-            fastrand::f32() * 0.1,
-            fastrand::f32() * 0.1,
-            fastrand::f32() * 0.1,
-        ));
-    }
+    circles.push(Circle::new(0.5, 0.2, 0.1, 0.1, 0.5, 0.3));
+    circles.push(Circle::new(0.5, 0.8, 0.1, 0.6, 0.8, 0.3));
+
     let mut losses = Vec::new();
 
     for i in 0..750 {
@@ -41,7 +34,7 @@ fn main() -> Result<(), std::io::Error> {
 }
 
 fn get_target(width: u32) -> Vec<f32> {
-    let img = image::open("cat.png")
+    let img = image::open("target.png")
         .expect("Failed to load image")
         .resize_exact(width, width, FilterType::Lanczos3)
         .to_rgb8();
