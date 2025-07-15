@@ -45,24 +45,24 @@ impl Circle {
         let dcdy = dsdx * dddy;
         let dcdz = dz_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
 
-        self.dx += 2.0 * (y_hat.0 - target.0) * dcdx * self.r;
-        self.dy += 2.0 * (y_hat.0 - target.0) * dcdy * self.r;
-        self.dz += 2.0 * (y_hat.0 - target.0) * dcdz * self.r;
+        self.dx -= 2.0 * (y_hat.0 - target.0) * dcdx * self.r;
+        self.dy -= 2.0 * (y_hat.0 - target.0) * dcdy * self.r;
+        self.dz -= 2.0 * (y_hat.0 - target.0) * dcdz * self.r;
 
-        self.dx += 2.0 * (y_hat.1 - target.1) * dcdx * self.g;
-        self.dy += 2.0 * (y_hat.1 - target.1) * dcdy * self.g;
-        self.dz += 2.0 * (y_hat.1 - target.1) * dcdz * self.g;
+        self.dx -= 2.0 * (y_hat.1 - target.1) * dcdx * self.g;
+        self.dy -= 2.0 * (y_hat.1 - target.1) * dcdy * self.g;
+        self.dz -= 2.0 * (y_hat.1 - target.1) * dcdz * self.g;
 
-        self.dx += 2.0 * (y_hat.2 - target.2) * dcdx * self.b;
-        self.dy += 2.0 * (y_hat.2 - target.2) * dcdy * self.b;
-        self.dz += 2.0 * (y_hat.2 - target.2) * dcdz * self.b;
+        self.dx -= 2.0 * (y_hat.2 - target.2) * dcdx * self.b;
+        self.dy -= 2.0 * (y_hat.2 - target.2) * dcdy * self.b;
+        self.dz -= 2.0 * (y_hat.2 - target.2) * dcdz * self.b;
 
         let d = distance(x0, self.x, y0, self.y);
         let c = p_sigmoid(d, self.z, 2000.0);
 
-        self.dr += 2.0 * (target.0 - y_hat.0) * c;
-        self.dg += 2.0 * (target.1 - y_hat.1) * c;
-        self.db += 2.0 * (target.2 - y_hat.2) * c;
+        self.dr -= 2.0 * (y_hat.0 - target.0) * c * 10.0;
+        self.dg -= 2.0 * (y_hat.1 - target.1) * c * 10.0;
+        self.db -= 2.0 * (y_hat.2 - target.2) * c * 10.0;
     }
 
     pub fn zero_grad(&mut self) {
@@ -102,7 +102,7 @@ fn d_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
 }
 
 fn dz_p_sigmoid(x: f32, offset: f32, sharpness: f32) -> f32 {
-    -(((offset - x) * sharpness).clamp(-10.0, 10.0).exp() * sharpness)
+    (((offset - x) * sharpness).clamp(-10.0, 10.0).exp() * sharpness)
         / (1.0 + ((offset - x) * sharpness).clamp(-10.0, 10.0).exp()).powi(2)
 }
 
@@ -111,11 +111,11 @@ fn distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
 }
 
 fn dx_distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    (x - x0) / distance(x0, x, y0, y).max(1e-10)
+    (x0 - x) / distance(x0, x, y0, y).max(1e-10)
 }
 
 fn dy_distance(x0: f32, x: f32, y0: f32, y: f32) -> f32 {
-    (y - y0) / distance(x0, x, y0, y).max(1e-10)
+    (y0 - y) / distance(x0, x, y0, y).max(1e-10)
 }
 
 #[cfg(test)]
