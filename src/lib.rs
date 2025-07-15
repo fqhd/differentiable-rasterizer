@@ -27,6 +27,7 @@ pub fn optimize(
     raster: &Vec<f32>,
     target: &Vec<f32>,
     learning_rate: f32,
+    momentum: f32,
 ) -> f32 {
     for circle in circles.iter_mut() {
         circle.zero_grad();
@@ -63,7 +64,7 @@ pub fn optimize(
     loss /= (width * width * 3) as f32;
 
     for circle in circles.iter_mut() {
-        circle.step(width, learning_rate, 0.99);
+        circle.step(width, learning_rate, momentum);
     }
 
     loss
