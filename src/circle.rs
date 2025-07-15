@@ -5,12 +5,20 @@ pub struct Circle {
     pub r: f32,
     pub g: f32,
     pub b: f32,
+
     pub dx: f32,
     pub dy: f32,
     pub dz: f32,
     pub dr: f32,
     pub dg: f32,
     pub db: f32,
+
+    pub vx: f32,
+    pub vy: f32,
+    pub vz: f32,
+    pub vr: f32,
+    pub vg: f32,
+    pub vb: f32,
 }
 
 impl Circle {
@@ -28,6 +36,12 @@ impl Circle {
             dr: 0.0,
             dg: 0.0,
             db: 0.0,
+            vx: 0.0,
+            vy: 0.0,
+            vz: 0.0,
+            vr: 0.0,
+            vg: 0.0,
+            vb: 0.0,
         }
     }
 
@@ -45,24 +59,24 @@ impl Circle {
         let dcdy = dsdx * dddy;
         let dcdz = dz_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
 
-        self.dx -= 2.0 * (y_hat.0 - target.0) * dcdx * self.r;
-        self.dy -= 2.0 * (y_hat.0 - target.0) * dcdy * self.r;
-        self.dz -= 2.0 * (y_hat.0 - target.0) * dcdz * self.r;
+        self.dx += 2.0 * (y_hat.0 - target.0) * dcdx * self.r;
+        self.dy += 2.0 * (y_hat.0 - target.0) * dcdy * self.r;
+        self.dz += 2.0 * (y_hat.0 - target.0) * dcdz * self.r;
 
-        self.dx -= 2.0 * (y_hat.1 - target.1) * dcdx * self.g;
-        self.dy -= 2.0 * (y_hat.1 - target.1) * dcdy * self.g;
-        self.dz -= 2.0 * (y_hat.1 - target.1) * dcdz * self.g;
+        self.dx += 2.0 * (y_hat.1 - target.1) * dcdx * self.g;
+        self.dy += 2.0 * (y_hat.1 - target.1) * dcdy * self.g;
+        self.dz += 2.0 * (y_hat.1 - target.1) * dcdz * self.g;
 
-        self.dx -= 2.0 * (y_hat.2 - target.2) * dcdx * self.b;
-        self.dy -= 2.0 * (y_hat.2 - target.2) * dcdy * self.b;
-        self.dz -= 2.0 * (y_hat.2 - target.2) * dcdz * self.b;
+        self.dx += 2.0 * (y_hat.2 - target.2) * dcdx * self.b;
+        self.dy += 2.0 * (y_hat.2 - target.2) * dcdy * self.b;
+        self.dz += 2.0 * (y_hat.2 - target.2) * dcdz * self.b;
 
         let d = distance(x0, self.x, y0, self.y);
         let c = p_sigmoid(d, self.z, 2000.0);
 
-        self.dr -= 2.0 * (y_hat.0 - target.0) * c * 10.0;
-        self.dg -= 2.0 * (y_hat.1 - target.1) * c * 10.0;
-        self.db -= 2.0 * (y_hat.2 - target.2) * c * 10.0;
+        self.dr += 2.0 * (y_hat.0 - target.0) * c;
+        self.dg += 2.0 * (y_hat.1 - target.1) * c;
+        self.db += 2.0 * (y_hat.2 - target.2) * c;
     }
 
     pub fn zero_grad(&mut self) {
@@ -74,7 +88,7 @@ impl Circle {
         self.db = 0.0;
     }
 
-    pub fn step(&mut self, width: u32, lr: f32) {
+    pub fn step(&mut self, width: u32, lr: f32, momentum: f32) {
         self.dx /= (width * width * 3) as f32;
         self.dy /= (width * width * 3) as f32;
         self.dz /= (width * width * 3) as f32;
@@ -82,12 +96,19 @@ impl Circle {
         self.dg /= (width * width) as f32;
         self.db /= (width * width) as f32;
 
-        self.x += self.dx * lr;
-        self.y += self.dy * lr;
-        self.z += self.dz * lr;
-        self.r += self.dr * lr;
-        self.g += self.dg * lr;
-        self.b += self.db * lr;
+        self.vx = momentum * self.vx - lr * self.dx;
+        self.vy = momentum * self.vy - lr * self.dy;
+        self.vz = momentum * self.vz - lr * self.dz;
+        self.vr = momentum * self.vr - lr * self.dr;
+        self.vg = momentum * self.vg - lr * self.dg;
+        self.vb = momentum * self.vb - lr * self.db;
+
+        self.x += self.vx;
+        self.y += self.vy;
+        self.z += self.vz;
+        self.r += self.vr;
+        self.g += self.vg;
+        self.b += self.vb;
     }
 }
 

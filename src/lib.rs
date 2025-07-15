@@ -56,7 +56,7 @@ pub fn optimize(
 
     loss /= (width * width * 3) as f32;
 
-    circle.step(width, learning_rate);
+    circle.step(width, learning_rate, 0.9);
 
     loss
 }
