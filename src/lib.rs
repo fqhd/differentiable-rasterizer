@@ -31,17 +31,30 @@ pub fn optimize(
 
     for j in 0..width {
         for i in 0..width {
-            let index = j * width + i;
-            let c = raster[index as usize];
-            let label = target[index as usize];
+            let index = j * width * 3 + i * 3;
+            let color = (
+                raster[(index + 0) as usize],
+                raster[(index + 1) as usize],
+                raster[(index + 2) as usize],
+            );
+            let label = (
+                target[(index + 0) as usize],
+                target[(index + 1) as usize],
+                target[(index + 2) as usize],
+            );
+
             let y = (j as f32) / (width as f32);
             let x = (i as f32) / (width as f32);
-            loss += (label - c).powf(2.0);
-            circle.backward(x, y, c, label);
+
+            loss += (label.0 - color.0).powf(2.0);
+            loss += (label.1 - color.1).powf(2.0);
+            loss += (label.2 - color.2).powf(2.0);
+
+            circle.backward(x, y, color, label);
         }
     }
 
-    loss /= (width * width) as f32;
+    loss /= (width * width * 3) as f32;
 
     circle.step(width, learning_rate);
 

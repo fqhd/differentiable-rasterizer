@@ -37,32 +37,57 @@ impl Circle {
         (c * self.r, c * self.g, c * self.b)
     }
 
-    pub fn backward(&mut self, x0: f32, y0: f32, y_hat: f32, target: f32) {
+    pub fn backward(&mut self, x0: f32, y0: f32, y_hat: (f32, f32, f32), target: (f32, f32, f32)) {
         let dsdx = d_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
         let dddx = dx_distance(x0, self.x, y0, self.y);
         let dddy = dy_distance(x0, self.x, y0, self.y);
         let dcdx = dsdx * dddx;
         let dcdy = dsdx * dddy;
         let dcdz = dz_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
-        self.dx += 2.0 * (target - y_hat) * dcdx;
-        self.dy += 2.0 * (target - y_hat) * dcdy;
-        self.dz += 2.0 * (target - y_hat) * dcdz;
+
+        self.dx += 2.0 * (y_hat.0 - target.0) * dcdx * self.r;
+        self.dy += 2.0 * (y_hat.0 - target.0) * dcdy * self.r;
+        self.dz += 2.0 * (y_hat.0 - target.0) * dcdz * self.r;
+
+        self.dx += 2.0 * (y_hat.1 - target.1) * dcdx * self.g;
+        self.dy += 2.0 * (y_hat.1 - target.1) * dcdy * self.g;
+        self.dz += 2.0 * (y_hat.1 - target.1) * dcdz * self.g;
+
+        self.dx += 2.0 * (y_hat.2 - target.2) * dcdx * self.b;
+        self.dy += 2.0 * (y_hat.2 - target.2) * dcdy * self.b;
+        self.dz += 2.0 * (y_hat.2 - target.2) * dcdz * self.b;
+
+        let d = distance(x0, self.x, y0, self.y);
+        let c = p_sigmoid(d, self.z, 2000.0);
+
+        self.dr += 2.0 * (target.0 - y_hat.0) * c;
+        self.dg += 2.0 * (target.1 - y_hat.1) * c;
+        self.db += 2.0 * (target.2 - y_hat.2) * c;
     }
 
     pub fn zero_grad(&mut self) {
         self.dx = 0.0;
         self.dy = 0.0;
         self.dz = 0.0;
+        self.dr = 0.0;
+        self.dg = 0.0;
+        self.db = 0.0;
     }
 
     pub fn step(&mut self, width: u32, lr: f32) {
-        self.dx /= (width * width) as f32;
-        self.dy /= (width * width) as f32;
-        self.dz /= (width * width) as f32;
+        self.dx /= (width * width * 3) as f32;
+        self.dy /= (width * width * 3) as f32;
+        self.dz /= (width * width * 3) as f32;
+        self.dr /= (width * width) as f32;
+        self.dg /= (width * width) as f32;
+        self.db /= (width * width) as f32;
 
         self.x += self.dx * lr;
         self.y += self.dy * lr;
         self.z += self.dz * lr;
+        self.r += self.dr * lr;
+        self.g += self.dg * lr;
+        self.b += self.db * lr;
     }
 }
 
