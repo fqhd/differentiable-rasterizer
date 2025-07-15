@@ -1,17 +1,17 @@
 pub struct Circle {
-    x: f32,
-    y: f32,
-    z: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
     r: f32,
     g: f32,
     b: f32,
 
-    dx: f32,
-    dy: f32,
-    dz: f32,
-    dr: f32,
-    dg: f32,
-    db: f32,
+    pub dx: f32,
+    pub dy: f32,
+    pub dz: f32,
+    pub dr: f32,
+    pub dg: f32,
+    pub db: f32,
 
     vx: f32,
     vy: f32,
@@ -88,14 +88,7 @@ impl Circle {
         self.db = 0.0;
     }
 
-    pub fn step(&mut self, width: u32, lr: f32, momentum: f32) {
-        self.dx /= (width * width * 3) as f32;
-        self.dy /= (width * width * 3) as f32;
-        self.dz /= (width * width * 3) as f32;
-        self.dr /= (width * width) as f32;
-        self.dg /= (width * width) as f32;
-        self.db /= (width * width) as f32;
-
+    pub fn step(&mut self, lr: f32, momentum: f32) {
         self.vx = momentum * self.vx - lr * self.dx;
         self.vy = momentum * self.vy - lr * self.dy;
         self.vz = momentum * self.vz - lr * self.dz;

@@ -29,7 +29,7 @@ struct Args {
     width: u32,
 
     /// Number of gradient descent steps to take (optional)
-    #[arg(long, default_value_t = 1000)]
+    #[arg(short = 'i', long = "n_iterations", default_value_t = 1000)]
     n_iterations: u32,
 
     /// Number of circles (optional)
@@ -84,6 +84,8 @@ fn main() -> Result<(), std::io::Error> {
 
     let values = rasterize(&circles, args.width);
     save_image(&values, &args.output, args.width);
+
+    println!("Image savid to {}", args.output);
 
     Ok(())
 }
