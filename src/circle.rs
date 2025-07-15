@@ -74,9 +74,9 @@ impl Circle {
         let d = distance(x0, self.x, y0, self.y);
         let c = p_sigmoid(d, self.z, 2000.0);
 
-        self.dr += 2.0 * (y_hat.0 - target.0) * c;
-        self.dg += 2.0 * (y_hat.1 - target.1) * c;
-        self.db += 2.0 * (y_hat.2 - target.2) * c;
+        self.dr += 2.0 * (y_hat.0 - target.0) * 10.0 * c;
+        self.dg += 2.0 * (y_hat.1 - target.1) * 10.0 * c;
+        self.db += 2.0 * (y_hat.2 - target.2) * 10.0 * c;
     }
 
     pub fn zero_grad(&mut self) {
