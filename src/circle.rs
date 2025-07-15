@@ -1,24 +1,24 @@
 pub struct Circle {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
+    x: f32,
+    y: f32,
+    z: f32,
+    r: f32,
+    g: f32,
+    b: f32,
 
-    pub dx: f32,
-    pub dy: f32,
-    pub dz: f32,
-    pub dr: f32,
-    pub dg: f32,
-    pub db: f32,
+    dx: f32,
+    dy: f32,
+    dz: f32,
+    dr: f32,
+    dg: f32,
+    db: f32,
 
-    pub vx: f32,
-    pub vy: f32,
-    pub vz: f32,
-    pub vr: f32,
-    pub vg: f32,
-    pub vb: f32,
+    vx: f32,
+    vy: f32,
+    vz: f32,
+    vr: f32,
+    vg: f32,
+    vb: f32,
 }
 
 impl Circle {
@@ -47,17 +47,17 @@ impl Circle {
 
     pub fn forward(&self, x0: f32, y0: f32) -> (f32, f32, f32) {
         let d = distance(x0, self.x, y0, self.y);
-        let c = p_sigmoid(d, self.z, 2000.0);
+        let c = p_sigmoid(d, self.z, 1000.0);
         (c * self.r, c * self.g, c * self.b)
     }
 
     pub fn backward(&mut self, x0: f32, y0: f32, y_hat: (f32, f32, f32), target: (f32, f32, f32)) {
-        let dsdx = d_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
+        let dsdx = d_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 1000.0);
         let dddx = dx_distance(x0, self.x, y0, self.y);
         let dddy = dy_distance(x0, self.x, y0, self.y);
         let dcdx = dsdx * dddx;
         let dcdy = dsdx * dddy;
-        let dcdz = dz_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 2000.0);
+        let dcdz = dz_p_sigmoid(distance(x0, self.x, y0, self.y), self.z, 1000.0);
 
         self.dx += 2.0 * (y_hat.0 - target.0) * dcdx * self.r;
         self.dy += 2.0 * (y_hat.0 - target.0) * dcdy * self.r;
@@ -72,11 +72,11 @@ impl Circle {
         self.dz += 2.0 * (y_hat.2 - target.2) * dcdz * self.b;
 
         let d = distance(x0, self.x, y0, self.y);
-        let c = p_sigmoid(d, self.z, 2000.0);
+        let c = p_sigmoid(d, self.z, 1000.0);
 
-        self.dr += 2.0 * (y_hat.0 - target.0) * 10.0 * c;
-        self.dg += 2.0 * (y_hat.1 - target.1) * 10.0 * c;
-        self.db += 2.0 * (y_hat.2 - target.2) * 10.0 * c;
+        self.dr += 2.0 * (y_hat.0 - target.0) * c;
+        self.dg += 2.0 * (y_hat.1 - target.1) * c;
+        self.db += 2.0 * (y_hat.2 - target.2) * c;
     }
 
     pub fn zero_grad(&mut self) {

@@ -63,7 +63,7 @@ pub fn optimize(
     loss /= (width * width * 3) as f32;
 
     for circle in circles.iter_mut() {
-        circle.step(width, learning_rate, 0.9);
+        circle.step(width, learning_rate, 0.99);
     }
 
     loss
