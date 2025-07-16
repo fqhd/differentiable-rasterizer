@@ -1,4 +1,6 @@
 # Drast
+[![Crates.io](https://img.shields.io/crates/v/drast.svg)](https://crates.io/crates/drast)
+
 A fast, differentiable 2D rasterizer written in Rust that optimizes circle parameters to match a target image. Enables gradient-based shape optimization with support for animation output and resolution independent rendering.
 
 Traditional rasterizers draw shapes by splitting them into triangles and rendering those using highly optimized triangle rasterization algorithms such as [scanline](https://en.wikipedia.org/wiki/Scanline_rendering) or [barycentric](https://en.wikipedia.org/wiki/Barycentric_coordinate_system). Unfortunately, the discrete operations used by these algorithms break differentiability and make it impossible to backpropagate a loss given a target value. Drast instead renders shapes in a fully differentiable manner using solely functions which are continuous and well defined throughout their entire domain.
