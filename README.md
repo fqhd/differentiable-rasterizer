@@ -3,14 +3,26 @@ A fast, differentiable 2D rasterizer written in Rust that optimizes circle param
 
 ---
 ## Demos
-<table style="width:100%; text-align:center;">
+<table>
 	<tr>
 		<td align="center"><strong>Optimization Process</strong></td>
+		<td align="center"><strong>Fully Converged</strong></td>
   	<td align="center"><strong>Target Image</strong></td>
 	</tr>
 	<tr>
-		<td align="center"><img src="images/cat/animation.gif" width="100%"/></td>
-		<td align="center"><img src="images/cat/target.png" width="100%"/></td>
+		<td align="center"><img src="images/cat/animation.gif"/></td>
+		<td align="center"><img src="images/cat/converged.png"/></td>
+		<td align="center"><img src="images/cat/target.png"/></td>
+	</tr>
+	<tr>
+		<td align="center"><img src="images/puppy/animation.gif"/></td>
+		<td align="center"><img src="images/puppy/converged.png"/></td>
+		<td align="center"><img src="images/puppy/target.png"/></td>
+	</tr>
+	<tr>
+		<td align="center"><img src="images/paris/animation.gif"/></td>
+		<td align="center"><img src="images/paris/converged.png"/></td>
+		<td align="center"><img src="images/paris/target.png"/></td>
 	</tr>
 </table>·
 
