@@ -18,15 +18,18 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             bin: drast
-            asset_name: drast-linux
+            renamed_bin: drast_linux_x86_64_bin
+            asset_name: drast_linux_x86_64_bin
           - os: windows-latest
             target: x86_64-pc-windows-gnu
             bin: drast.exe
-            asset_name: drast-windows.exe
+            renamed_bin: drast_windows_x86_64_bin.exe
+            asset_name: drast_windows_x86_64_bin.exe
           - os: macos-latest
             target: x86_64-apple-darwin
             bin: drast
-            asset_name: drast-macos
+            renamed_bin: drast_macos_x86_64_bin
+            asset_name: drast_macos_x86_64_bin
 
     steps:
       - name: Checkout source
@@ -41,9 +44,13 @@ jobs:
       - name: Build release
         run: cargo build --release --target ${{ matrix.target }}
 
+      - name: Rename binary
+        run: |
+          mv target/${{ matrix.target }}/release/${{ matrix.bin }} target/${{ matrix.target }}/release/${{ matrix.renamed_bin }}
+
       - name: Upload binary to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: target/${{ matrix.target }}/release/${{ matrix.bin }}
+          files: target/${{ matrix.target }}/release/${{ matrix.renamed_bin }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
