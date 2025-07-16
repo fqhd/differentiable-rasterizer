@@ -72,12 +72,14 @@ fn main() -> Result<(), std::io::Error> {
     for i in 0..args.n_iterations {
         let values = rasterize(&circles, 128);
         let loss = optimize(&mut circles, 128, &values, &target, args.lr, args.momentum);
+
         if args.verbose {
             println!("{}) Loss: {}", i, loss);
         }
+
         if args.save_frames {
             let values = rasterize(&circles, args.width);
-            let path = format!("frames/{}.png", i);
+            let path = format!("frames/frame{:03}.png", i);
             save_image(&values, &path, args.width);
         }
     }
