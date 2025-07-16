@@ -52,7 +52,7 @@ fn main() -> Result<(), std::io::Error> {
 
     let folder_path = "frames";
 
-    if !Path::new(folder_path).exists() {
+    if !Path::new(folder_path).exists() && args.save_frames {
         fs::create_dir_all(folder_path)?;
     }
 
