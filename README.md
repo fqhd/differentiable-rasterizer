@@ -1,5 +1,5 @@
 # Drast
-![Crates.io](https://img.shields.io/crates/v/drast.svg)](https://crates.io/crates/drast)
+![Crates.io](https://img.shields.io/crates/v/drast.svg)(https://crates.io/crates/drast)
 ![CI](https://github.com/fqhd/drast/actions/workflows/release.yml/badge.svg?branch=master)
 
 A fast, differentiable 2D rasterizer written in Rust that optimizes circle parameters to match a target image. Enables gradient-based shape optimization with support for animation output and resolution independent rendering.
