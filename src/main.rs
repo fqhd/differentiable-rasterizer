@@ -41,7 +41,7 @@ struct Args {
     verbose: bool,
 
     /// Enable verbose output
-    #[arg(long, default_value_t = false)]
+    #[arg(short = 's', long = "save_frames", default_value_t = false)]
     save_frames: bool,
 }
 
