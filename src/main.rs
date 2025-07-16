@@ -1,5 +1,5 @@
 use clap::Parser;
-use differentiable_rasterizer::{Circle, optimize, rasterize};
+use drast::{Circle, optimize, rasterize};
 use fastrand;
 use image::{ImageBuffer, Rgb, RgbImage, imageops::FilterType};
 use std::fs;
