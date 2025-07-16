@@ -18,4 +18,4 @@ image = "0.25.6"
 name = "drast"
 path = "src/main.rs"
 
-exclude = ["/images/*", "/frames/*", "*.gif", "*.png", "*.jpg"]
+exclude = ["images/*", "frames/*", "*.gif", "*.png", "*.jpg"]
