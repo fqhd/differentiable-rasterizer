@@ -10,8 +10,8 @@ pub fn rasterize(circles: &Vec<Circle>, width: u32) -> Vec<f32> {
         let min_x = ((circle.x - radius) * width as f32).floor() as i32;
         let min_y = ((circle.y - radius) * width as f32).floor() as i32;
 
-        let max_x = ((circle.x + radius) * width as f32).ceil() as i32 + 1;
-        let max_y = ((circle.y + radius) * width as f32).ceil() as i32 + 1;
+        let max_x = ((circle.x + radius) * width as f32).ceil() as i32;
+        let max_y = ((circle.y + radius) * width as f32).ceil() as i32;
 
         let start_x = min_x.clamp(0, width as i32 - 1);
         let end_x = max_x.clamp(0, width as i32);
@@ -49,16 +49,18 @@ pub fn optimize(
         circle.zero_grad();
     }
     let mut loss = 0.0;
-    let mut total_loss = 0.0;
+
+    let mut loss_divisor = 0.0;
 
     for circle in circles.iter_mut() {
         let radius = circle.z;
+        let mut gradient_divisor = 0.0;
 
         let min_x = ((circle.x - radius) * width as f32).floor() as i32;
         let min_y = ((circle.y - radius) * width as f32).floor() as i32;
 
-        let max_x = ((circle.x + radius) * width as f32).ceil() as i32 + 1;
-        let max_y = ((circle.y + radius) * width as f32).ceil() as i32 + 1;
+        let max_x = ((circle.x + radius) * width as f32).ceil() as i32;
+        let max_y = ((circle.y + radius) * width as f32).ceil() as i32;
 
         let start_x = min_x.clamp(0, width as i32 - 1);
         let end_x = max_x.clamp(0, width as i32);
@@ -66,7 +68,6 @@ pub fn optimize(
         let start_y = min_y.clamp(0, width as i32 - 1);
         let end_y = max_y.clamp(0, width as i32);
 
-        let mut total_gradient = 0.0;
         for j in start_y..end_y {
             for i in start_x..end_x {
                 let index = j * width as i32 * 3 + i * 3;
@@ -90,19 +91,19 @@ pub fn optimize(
                 loss += (label.2 - color.2).powf(2.0);
 
                 circle.backward(fx, fy, color, label);
-                total_loss += 3.0;
-                total_gradient += 1.0;
+                loss_divisor += 3.0;
+                gradient_divisor += 1.0;
             }
         }
-        circle.dx /= total_gradient;
-        circle.dy /= total_gradient;
-        circle.dz /= total_gradient;
-        circle.dr /= total_gradient;
-        circle.dg /= total_gradient;
-        circle.db /= total_gradient;
+        circle.dx /= gradient_divisor * 3.0;
+        circle.dy /= gradient_divisor * 3.0;
+        circle.dz /= gradient_divisor * 3.0;
+        circle.dr /= gradient_divisor;
+        circle.dg /= gradient_divisor;
+        circle.db /= gradient_divisor;
     }
 
-    loss /= total_loss;
+    loss /= loss_divisor;
 
     for circle in circles.iter_mut() {
         circle.step(learning_rate, momentum);
