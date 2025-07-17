@@ -47,7 +47,11 @@ The derivative of the [sigmoid](https://en.wikipedia.org/wiki/Sigmoid_function) 
 
 ## Install
 
-You can install the binary directly using `cargo install`:
+You can either install the latest release directly as a crate:
+```
+cargo install drast
+```
+or install it from source:
 ```
 cargo install --git https://github.com/fqhd/drast
 ```
